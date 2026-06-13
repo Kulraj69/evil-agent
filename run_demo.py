@@ -131,7 +131,22 @@ def run_demo():
     # Initialize components
     print("🔧 Initializing components...")
     mcp_server = SIFTMCPServer(evidence_path="/evidence")
+
+    # Use the real Azure OpenAI client when --live is passed AND configured;
+    # otherwise the scripted MockLLMClient drives the deterministic demo.
     llm_client = MockLLMClient()
+    if "--live" in sys.argv:
+        try:
+            from agent.llm_client import make_llm_client
+            live = make_llm_client()
+            if live is not None:
+                llm_client = live
+                print("   Using live Azure OpenAI reasoning.")
+            else:
+                print("   --live requested but Azure OpenAI not configured; using scripted demo.")
+        except Exception as exc:
+            print(f"   Could not init live client ({exc}); using scripted demo.")
+
     logger = IterationLogger(case_id="DEMO-001", log_dir=str(output_dir))
 
     # Create agent

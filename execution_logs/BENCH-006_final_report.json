@@ -19,7 +19,7 @@
     "iterations": [
       {
         "iteration_number": 1,
-        "timestamp": "2026-06-13T22:31:13.203217",
+        "timestamp": "2026-06-13T22:37:47.442098",
         "hypothesis": {
           "type": "credential_theft",
           "description": "First-glance hypothesis: credential_theft.",
@@ -30,7 +30,7 @@
           "gaps": [
             "Needs corroboration"
           ],
-          "created_at": "2026-06-13T22:31:13.202041",
+          "created_at": "2026-06-13T22:37:47.440069",
           "iteration": 1
         },
         "tools_executed": [
@@ -42,7 +42,7 @@
             },
             "execution_id": "exec-0003",
             "success": true,
-            "timestamp": "2026-06-13T22:31:13.202512"
+            "timestamp": "2026-06-13T22:37:47.440976"
           },
           {
             "tool": "parse_event_logs",
@@ -57,7 +57,7 @@
             },
             "execution_id": "exec-0004",
             "success": true,
-            "timestamp": "2026-06-13T22:31:13.202704"
+            "timestamp": "2026-06-13T22:37:47.441378"
           },
           {
             "tool": "search_registry_hive",
@@ -67,7 +67,7 @@
             },
             "execution_id": "exec-0005",
             "success": true,
-            "timestamp": "2026-06-13T22:31:13.202896"
+            "timestamp": "2026-06-13T22:37:47.441748"
           }
         ],
         "findings": [],
@@ -81,7 +81,7 @@
       },
       {
         "iteration_number": 2,
-        "timestamp": "2026-06-13T22:31:13.205272",
+        "timestamp": "2026-06-13T22:37:47.443475",
         "hypothesis": {
           "type": "benign",
           "description": "Benign administrative activity; no malicious indicators corroborated.",
@@ -92,7 +92,7 @@
             "mft_timeline"
           ],
           "gaps": [],
-          "created_at": "2026-06-13T22:31:13.203636",
+          "created_at": "2026-06-13T22:37:47.442441",
           "iteration": 2
         },
         "tools_executed": [
@@ -103,7 +103,7 @@
             },
             "execution_id": "exec-0006",
             "success": true,
-            "timestamp": "2026-06-13T22:31:13.204611"
+            "timestamp": "2026-06-13T22:37:47.443109"
           },
           {
             "tool": "parse_event_logs",
@@ -116,7 +116,7 @@
             },
             "execution_id": "exec-0007",
             "success": true,
-            "timestamp": "2026-06-13T22:31:13.204930"
+            "timestamp": "2026-06-13T22:37:47.443282"
           }
         ],
         "findings": [],
@@ -141,5 +141,5 @@
       "spoliation_events": 0
     }
   },
-  "generated_at": "2026-06-13T22:31:13.206040"
+  "generated_at": "2026-06-13T22:37:47.443847"
 }

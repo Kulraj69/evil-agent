@@ -190,7 +190,15 @@ python3 run_demo.py            # Live self-correction (ransomware → credential
 python3 run_all_scenarios.py   # Live self-correction across all 6 incident types (8/8)
 python3 benchmark.py           # Accuracy benchmark over 8 labeled cases
 python3 explore.py             # Interactive menu
+pytest                         # 23 tests (validator, guardrails, spoliation, self-correction)
+
+# Live LLM (Azure OpenAI): cp .env.example .env, add creds, then:
+python3 run_demo.py --live
+# Real case data on the SIFT Workstation:
+python3 run_real_sift.py --live --disk <image> --logs <evtx> --case CFREDS-LEAK
 ```
+
+See **[SETUP.md](SETUP.md)** for full setup (offline, live LLM, and real SIFT Workstation) instructions.
 
 | Deliverable | Status | Where |
 |-------------|:------:|-------|

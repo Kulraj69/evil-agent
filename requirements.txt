@@ -1,8 +1,17 @@
 # Core dependencies for FIND EVIL! agent
-python-dotenv==1.0.0
 
-# AWS Bedrock (for LLM - Claude Sonnet)
-boto3==1.34.51
+# Config / secrets loading (.env)
+python-dotenv==1.0.1
 
-# For demo/development
-# (Real deployment would add MCP dependencies)
+# Live LLM reasoning via Azure OpenAI (optional at runtime; only needed for --live)
+openai==1.54.0
+
+# Tests
+pytest==8.3.3
+
+# Notes:
+# - The demo, multi-scenario runner, and benchmark run fully offline with the
+#   standard library only; openai is only imported when --live is used.
+# - Real SIFT tool integration (mcp_server/real_sift_tools.py) shells out to SIFT
+#   Workstation binaries (vol, fls, evtx_dump.py, rip.pl); those are provided by
+#   the SIFT Workstation, not pip.

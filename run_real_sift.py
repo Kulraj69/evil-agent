@@ -30,6 +30,7 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 from agent.self_correcting_agent import SelfCorrectingAgent
+from agent.llm_client import make_llm_client
 from mcp_server.real_sift_tools import RealSIFTTools
 from observability.logger import IterationLogger
 
@@ -61,6 +62,9 @@ def main():
     ap.add_argument("--logs", help="Path to Windows event log (.evtx)")
     ap.add_argument("--registry", help="Path to a registry hive (SOFTWARE/SYSTEM)")
     ap.add_argument("--case", default="REAL-CASE", help="Case identifier")
+    ap.add_argument("--live", action="store_true",
+                    help="Use the real Azure OpenAI client (requires .env). "
+                         "Falls back to offline reasoning if unconfigured.")
     args = ap.parse_args()
 
     case_data = {"case_id": args.case}
@@ -73,7 +77,18 @@ def main():
 
     mcp = RealSIFTTools(evidence_path="/evidence")
     logger = IterationLogger(case_id=args.case, log_dir="execution_logs")
-    agent = SelfCorrectingAgent(mcp_tools=mcp, llm_client=HeuristicLLM(), logger=logger)
+
+    llm = None
+    if args.live:
+        llm = make_llm_client()
+        if llm is None:
+            print("[llm] --live requested but Azure OpenAI not configured; using offline reasoning.")
+    if llm is None:
+        llm = HeuristicLLM()
+    else:
+        print("[llm] Using live Azure OpenAI reasoning.")
+
+    agent = SelfCorrectingAgent(mcp_tools=mcp, llm_client=llm, logger=logger)
 
     print(f"\nRunning FIND EVIL! on case {args.case} (real SIFT tools, read-only)...\n")
     report = agent.analyze_case(case_data)

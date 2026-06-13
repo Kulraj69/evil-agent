@@ -39,7 +39,7 @@
     "iterations": [
       {
         "iteration_number": 1,
-        "timestamp": "2026-06-13T22:31:13.214191",
+        "timestamp": "2026-06-13T22:37:47.453721",
         "hypothesis": {
           "type": "data_exfiltration",
           "description": "First-glance hypothesis: data_exfiltration.",
@@ -50,7 +50,7 @@
           "gaps": [
             "Needs corroboration"
           ],
-          "created_at": "2026-06-13T22:31:13.213290",
+          "created_at": "2026-06-13T22:37:47.452543",
           "iteration": 1
         },
         "tools_executed": [
@@ -62,7 +62,7 @@
             },
             "execution_id": "exec-0003",
             "success": true,
-            "timestamp": "2026-06-13T22:31:13.213786"
+            "timestamp": "2026-06-13T22:37:47.453127"
           },
           {
             "tool": "extract_mft_timeline",
@@ -71,7 +71,7 @@
             },
             "execution_id": "exec-0004",
             "success": true,
-            "timestamp": "2026-06-13T22:31:13.213957"
+            "timestamp": "2026-06-13T22:37:47.453321"
           }
         ],
         "findings": [
@@ -103,7 +103,7 @@
       },
       {
         "iteration_number": 2,
-        "timestamp": "2026-06-13T22:31:13.215582",
+        "timestamp": "2026-06-13T22:37:47.456383",
         "hypothesis": {
           "type": "ransomware",
           "description": "Ransomware: mass file encryption with extension change and ransom note.",
@@ -114,7 +114,7 @@
             "mft_timeline"
           ],
           "gaps": [],
-          "created_at": "2026-06-13T22:31:13.214536",
+          "created_at": "2026-06-13T22:37:47.455148",
           "iteration": 2
         },
         "tools_executed": [
@@ -125,7 +125,7 @@
             },
             "execution_id": "exec-0005",
             "success": true,
-            "timestamp": "2026-06-13T22:31:13.215244"
+            "timestamp": "2026-06-13T22:37:47.456140"
           }
         ],
         "findings": [
@@ -169,5 +169,5 @@
       "spoliation_events": 0
     }
   },
-  "generated_at": "2026-06-13T22:31:13.216585"
+  "generated_at": "2026-06-13T22:37:47.456755"
 }

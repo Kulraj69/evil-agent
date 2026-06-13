@@ -14,7 +14,7 @@ Hackathon. Update the right-hand column before submitting.
 | 1 | Public code repository | ✅ | github.com/Kulraj69/evil-agent |
 | 2 | Open-source license (Apache 2.0) | ✅ | `LICENSE` |
 | 3 | Architecture diagram | ✅ | `docs/architecture.png` (+ svg/html/mermaid) |
-| 4 | Working demo / try-it instructions | ✅ | `README.md` quick start, `run_demo.py`, `explore.py` |
+| 4 | Working demo / try-it instructions | ✅ | `SETUP.md`, `README.md` quick start, `run_demo.py`, `explore.py` |
 | 5 | Dataset + documentation | ✅ | `datasets/benchmark_cases.json`, `datasets/README.md` (incl. real NIST CFReDS provenance) |
 | 6 | Accuracy / evaluation evidence | ✅ | `ACCURACY_REPORT.md`, `benchmark.py`, `execution_logs/benchmark_results.json` |
 | 7 | 5-minute video | ⬜ **TODO** | Script ready in `VIDEO_SCRIPT.md` — record + upload (must show real case data) |
@@ -50,8 +50,8 @@ All three should exit 0 and print the expected numbers above.
 - [ ] Record the video (`VIDEO_SCRIPT.md`)
 - [ ] Write the Devpost description
 - [ ] (Stretch) Wire one MCP tool to a real parser on a CFReDS image
-- [ ] (Stretch) Swap `MockLLMClient` → real Bedrock Claude and re-run `benchmark.py`
-- [ ] (Stretch) Add a `pytest` suite + GitHub Actions CI
+- [x] Live LLM client (Azure OpenAI) wired via `--live` (`agent/llm_client.py`)
+- [x] `pytest` suite (23 tests) + GitHub Actions CI (`.github/workflows/ci.yml`)
 - [ ] Final read-through of `README.md` for broken links / stale claims
 
 ## Known limitations (state these honestly in the writeup)

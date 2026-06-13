@@ -15,6 +15,11 @@ venv/
 env/
 ENV/
 
+# Secrets - NEVER commit real credentials
+.env
+.env.local
+*.key
+
 # IDE
 .vscode/
 .idea/
