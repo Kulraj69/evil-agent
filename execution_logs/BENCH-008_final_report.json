@@ -39,7 +39,7 @@
     "iterations": [
       {
         "iteration_number": 1,
-        "timestamp": "2026-06-13T22:19:43.844669",
+        "timestamp": "2026-06-13T22:31:13.214191",
         "hypothesis": {
           "type": "data_exfiltration",
           "description": "First-glance hypothesis: data_exfiltration.",
@@ -50,7 +50,7 @@
           "gaps": [
             "Needs corroboration"
           ],
-          "created_at": "2026-06-13T22:19:43.844149",
+          "created_at": "2026-06-13T22:31:13.213290",
           "iteration": 1
         },
         "tools_executed": [
@@ -62,7 +62,7 @@
             },
             "execution_id": "exec-0003",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.844505"
+            "timestamp": "2026-06-13T22:31:13.213786"
           },
           {
             "tool": "extract_mft_timeline",
@@ -71,7 +71,7 @@
             },
             "execution_id": "exec-0004",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.844623"
+            "timestamp": "2026-06-13T22:31:13.213957"
           }
         ],
         "findings": [
@@ -103,7 +103,7 @@
       },
       {
         "iteration_number": 2,
-        "timestamp": "2026-06-13T22:19:43.845331",
+        "timestamp": "2026-06-13T22:31:13.215582",
         "hypothesis": {
           "type": "ransomware",
           "description": "Ransomware: mass file encryption with extension change and ransom note.",
@@ -114,7 +114,7 @@
             "mft_timeline"
           ],
           "gaps": [],
-          "created_at": "2026-06-13T22:19:43.844800",
+          "created_at": "2026-06-13T22:31:13.214536",
           "iteration": 2
         },
         "tools_executed": [
@@ -125,7 +125,7 @@
             },
             "execution_id": "exec-0005",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.845296"
+            "timestamp": "2026-06-13T22:31:13.215244"
           }
         ],
         "findings": [
@@ -156,7 +156,18 @@
     ],
     "total_tools_executed": 3,
     "self_corrections": 1,
-    "hallucinations_caught": 0
+    "hallucinations_caught": 0,
+    "token_usage": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "cost_usd": 0.0,
+      "llm_calls": 4
+    },
+    "evidence_integrity": {
+      "files_hashed": 0,
+      "spoliation_events": 0
+    }
   },
-  "generated_at": "2026-06-13T22:19:43.845611"
+  "generated_at": "2026-06-13T22:31:13.216585"
 }

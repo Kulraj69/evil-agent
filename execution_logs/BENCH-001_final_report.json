@@ -56,7 +56,7 @@
     "iterations": [
       {
         "iteration_number": 1,
-        "timestamp": "2026-06-13T22:19:43.815770",
+        "timestamp": "2026-06-13T22:31:13.175912",
         "hypothesis": {
           "type": "ransomware",
           "description": "First-glance hypothesis: ransomware.",
@@ -67,7 +67,7 @@
           "gaps": [
             "Needs corroboration"
           ],
-          "created_at": "2026-06-13T22:19:43.815018",
+          "created_at": "2026-06-13T22:31:13.174883",
           "iteration": 1
         },
         "tools_executed": [
@@ -78,7 +78,7 @@
             },
             "execution_id": "exec-0003",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.815455"
+            "timestamp": "2026-06-13T22:31:13.175442"
           }
         ],
         "findings": [
@@ -132,7 +132,7 @@
       },
       {
         "iteration_number": 2,
-        "timestamp": "2026-06-13T22:19:43.817596",
+        "timestamp": "2026-06-13T22:31:13.178293",
         "hypothesis": {
           "type": "credential_theft",
           "description": "Credential theft via LSASS dumping after brute force, with registry persistence.",
@@ -143,7 +143,7 @@
             "mft_timeline"
           ],
           "gaps": [],
-          "created_at": "2026-06-13T22:19:43.815980",
+          "created_at": "2026-06-13T22:31:13.176246",
           "iteration": 2
         },
         "tools_executed": [
@@ -155,7 +155,7 @@
             },
             "execution_id": "exec-0004",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.816718"
+            "timestamp": "2026-06-13T22:31:13.177012"
           },
           {
             "tool": "parse_event_logs",
@@ -170,7 +170,7 @@
             },
             "execution_id": "exec-0005",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.816948"
+            "timestamp": "2026-06-13T22:31:13.177345"
           },
           {
             "tool": "search_registry_hive",
@@ -180,7 +180,7 @@
             },
             "execution_id": "exec-0006",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.817165"
+            "timestamp": "2026-06-13T22:31:13.177615"
           }
         ],
         "findings": [
@@ -228,7 +228,18 @@
     ],
     "total_tools_executed": 4,
     "self_corrections": 1,
-    "hallucinations_caught": 2
+    "hallucinations_caught": 2,
+    "token_usage": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "cost_usd": 0.0,
+      "llm_calls": 4
+    },
+    "evidence_integrity": {
+      "files_hashed": 0,
+      "spoliation_events": 0
+    }
   },
-  "generated_at": "2026-06-13T22:19:43.818232"
+  "generated_at": "2026-06-13T22:31:13.178846"
 }

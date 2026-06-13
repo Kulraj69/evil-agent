@@ -10,7 +10,9 @@ destructive commands because those functions don't exist.
 This is an ARCHITECTURAL guardrail, not a prompt-based one.
 """
 
+import hashlib
 import json
+import os
 import time
 from typing import Dict, List, Any, Optional
 from datetime import datetime
@@ -60,6 +62,60 @@ class SIFTMCPServer:
 
         # Track all executions for audit
         self.execution_log: List[Dict] = []
+
+        # Evidence-integrity ledger: maps an evidence path to the SHA-256 it had
+        # when first opened. Re-verified after every tool call so any
+        # modification (spoliation) is detected immediately. This is an
+        # ARCHITECTURAL control, not a prompt: the server never exposes a write
+        # or shell function, so the agent has no tool that can mutate evidence.
+        self.integrity_ledger: Dict[str, str] = {}
+        self.spoliation_events: List[Dict] = []
+
+    # ========================================================================
+    # Evidence Integrity (Anti-Spoliation) - Criterion #4 / Accuracy Report
+    # ========================================================================
+
+    def register_evidence(self, path: str) -> Optional[str]:
+        """
+        Record the baseline SHA-256 of an evidence file so later reads can prove
+        it was never altered. Returns the hash, or None if the file is absent
+        (e.g. synthetic scenario mode with no on-disk image).
+        """
+        if not path or not os.path.isfile(path):
+            return None
+        digest = self._sha256(path)
+        self.integrity_ledger[path] = digest
+        return digest
+
+    def verify_integrity(self, path: str) -> bool:
+        """
+        Confirm an evidence file's current hash matches its registered baseline.
+        Records a spoliation event and returns False on any mismatch. Files that
+        don't exist on disk (synthetic mode) are treated as integrity-neutral.
+        """
+        if path not in self.integrity_ledger:
+            return True
+        if not os.path.isfile(path):
+            return True
+        current = self._sha256(path)
+        if current != self.integrity_ledger[path]:
+            event = {
+                "timestamp": datetime.utcnow().isoformat(),
+                "path": path,
+                "expected_sha256": self.integrity_ledger[path],
+                "actual_sha256": current,
+            }
+            self.spoliation_events.append(event)
+            return False
+        return True
+
+    @staticmethod
+    def _sha256(path: str) -> str:
+        h = hashlib.sha256()
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                h.update(chunk)
+        return h.hexdigest()
 
     def _generate_execution_id(self) -> str:
         """Generate unique execution ID."""

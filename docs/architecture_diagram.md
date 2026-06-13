@@ -1,5 +1,34 @@
 # FIND EVIL! Architecture Diagram
 
+## Architectural Pattern & Trust Boundaries (read this first)
+
+**Architectural pattern used:** **#2 — Custom MCP Server** (per the hackathon's
+four supported approaches). The agent talks to forensic tooling exclusively
+through a purpose-built MCP server that exposes **typed, read-only functions**
+instead of a generic shell.
+
+**Trust boundary map — where security is enforced and how:**
+
+| Boundary | Control | Type | Enforced where |
+|----------|---------|------|----------------|
+| LLM ↔ tools | Only 6 typed functions exposed; **no `execute_shell_cmd`** | **Architectural** | `mcp_server/sift_mcp_server.py` |
+| Tool ↔ evidence | Read-only access; no write/delete/mount-writable function exists | **Architectural** | `mcp_server/real_sift_tools.py` (fixed argv, never `shell=True`) |
+| Evidence integrity | SHA-256 hash-on-open + verify-after every call; spoliation logged | **Architectural** | `register_evidence` / `verify_integrity` |
+| Input safety | Path-traversal rejection, registry-key + plugin whitelist | **Architectural** | `_validate_path`, `_validate_registry_key`, plugin whitelist |
+| Finding integrity | Citation + numeric + pattern validation before a finding is kept | **Architectural (post-hoc)** | `agent/evidence_validator.py` |
+| LLM reasoning quality | Prompt instructions ("only claim what evidence supports") | **Prompt-based** | prompt templates in `agent/self_correcting_agent.py` |
+
+**Architectural vs. prompt-based (explicit):** Everything that protects evidence
+is **architectural** — the model *cannot* spoliate data because no tool with that
+capability is exposed. The **only** prompt-based element is the natural-language
+guidance that nudges the LLM toward well-grounded claims; even if that prompt is
+ignored, the architectural validation layer rejects unsupported findings and the
+read-only tool surface makes evidence modification impossible. This satisfies the
+rule that "prompt-based guardrails and architectural guardrails must be clearly
+distinguished."
+
+---
+
 ## System Overview (Mermaid Format)
 
 ```mermaid

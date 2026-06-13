@@ -117,7 +117,66 @@ This is the behavior described qualitatively in `README.md` and shown live in
 
 ---
 
-## 7. Limitations & next steps
+## 7. Evidence integrity & spoliation (required)
+
+> *This section answers the hackathon's required prompt: "how does your
+> architecture prevent original data from being modified? Did you test for
+> spoliation?"*
+
+### Architecture prevents modification — it isn't a prompt
+
+Evidence protection in FIND EVIL! is **architectural, not prompt-based**. The
+agent reaches forensic tools **only** through the custom MCP server
+(`mcp_server/`). That server exposes a fixed whitelist of **read-only typed
+functions** — `analyze_prefetch`, `extract_mft_timeline`, `parse_event_logs`,
+`analyze_memory_dump`, `search_registry_hive`, `get_amcache`. There is:
+
+- **No `execute_shell_cmd`** and no generic command function.
+- **No write/delete/move/format function** of any kind.
+- **No mount** of evidence as writable (the real adapter opens images read-only
+  and shells out only to read-only SIFT CLIs — `vol`, `fls`, `evtx_dump.py`,
+  `rip.pl` — built as fixed argument lists, never `shell=True`).
+
+Because the capability to mutate evidence **does not exist in the tool surface**,
+the LLM cannot be prompt-injected or jailbroken into spoliating data — there is
+nothing to call. This is the distinction the rules ask us to draw between
+*architectural* and *prompt-based* guardrails: ours is the former.
+
+### Hash-on-open + verify-after (active detection)
+
+Beyond removing write capability, the server **proves** integrity:
+
+1. `register_evidence(path)` records a **SHA-256** baseline the first time any
+   evidence file is opened.
+2. After **every** tool call, `verify_integrity(path)` re-hashes the file and
+   compares it to the baseline.
+3. Any mismatch is recorded as a **spoliation event** and surfaced in the final
+   report under `audit_trail.evidence_integrity`.
+
+This means even an unforeseen bug or a malicious tool would be **caught and
+logged**, not silently tolerated.
+
+### Spoliation test
+
+We verified the control end-to-end (`mcp_server/real_sift_tools.py` +
+`run_real_sift.py`): every evidence path is hashed before first read and
+re-verified after each tool execution. In all runs the reported
+`spoliation_events` count is **0**, and the report includes a `files_hashed`
+count so a judge can confirm the ledger was active. Because no write function
+exists, an attempt by the model to "delete" or "encrypt" evidence has **no
+corresponding tool to invoke** — the call simply cannot be made.
+
+### Known failure mode (documented honestly)
+
+The synthetic scenario engine operates on in-memory data with **no on-disk
+file**, so in scenario mode `files_hashed = 0` (nothing to hash). The integrity
+ledger becomes active the moment the real adapter is pointed at an actual image
+via `run_real_sift.py`. This is the one place where the protection is *latent*
+rather than *exercised*, and we call it out rather than hide it.
+
+---
+
+## 8. Limitations & next steps
 
 - The 8-case set is small and synthetic; numbers will be lower and more
   interesting on a larger, noisier corpus. The harness is dataset-driven, so

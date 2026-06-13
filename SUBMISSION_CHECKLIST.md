@@ -17,8 +17,11 @@ Hackathon. Update the right-hand column before submitting.
 | 4 | Working demo / try-it instructions | ✅ | `README.md` quick start, `run_demo.py`, `explore.py` |
 | 5 | Dataset + documentation | ✅ | `datasets/benchmark_cases.json`, `datasets/README.md` (incl. real NIST CFReDS provenance) |
 | 6 | Accuracy / evaluation evidence | ✅ | `ACCURACY_REPORT.md`, `benchmark.py`, `execution_logs/benchmark_results.json` |
-| 7 | 5-minute video | ⬜ **TODO** | Script ready in `VIDEO_SCRIPT.md` — record + upload |
-| 8 | Written project description (Devpost) | ⬜ **TODO** | Draft from `README.md` summary |
+| 7 | 5-minute video | ⬜ **TODO** | Script ready in `VIDEO_SCRIPT.md` — record + upload (must show real case data) |
+| 8 | Written project description (Devpost) | ✅ draft | `PROJECT_DESCRIPTION.md` — paste into Devpost |
+| — | Agent execution logs (timestamps + token usage) | ✅ | `execution_logs/*_final_report.json` `audit_trail.token_usage`; per-call `llm_call` entries |
+| — | Evidence integrity / spoliation section | ✅ | `ACCURACY_REPORT.md` §7 |
+| — | Real case-data path | ✅ scaffold | `run_real_sift.py` + `mcp_server/real_sift_tools.py` (read-only) |
 
 ## Judging criteria coverage
 

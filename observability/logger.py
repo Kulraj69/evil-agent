@@ -42,13 +42,44 @@ class IterationLogger:
         # In-memory log for structured output
         self.log_entries = []
 
+        # Cumulative token/cost usage across all LLM calls in this case
+        self.token_usage = {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0, "cost_usd": 0.0, "llm_calls": 0}
+
         # Session metadata
         self.session = {
             "case_id": case_id,
             "started_at": datetime.utcnow().isoformat(),
             "agent_version": "1.0.0",
+            "token_usage": self.token_usage,
             "entries": []
         }
+
+    def log_llm_call(self, run_id: str, purpose: str, usage: Dict[str, Any]):
+        """
+        Log a single LLM invocation with token usage. Satisfies the requirement
+        that single-agent execution logs include timestamps AND token usage so a
+        judge can trace cost/usage per reasoning step.
+        """
+        input_tokens = int(usage.get("input_tokens", 0) or 0)
+        output_tokens = int(usage.get("output_tokens", 0) or 0)
+        cost = float(usage.get("cost_usd", 0.0) or 0.0)
+
+        self.token_usage["input_tokens"] += input_tokens
+        self.token_usage["output_tokens"] += output_tokens
+        self.token_usage["total_tokens"] += input_tokens + output_tokens
+        self.token_usage["cost_usd"] = round(self.token_usage["cost_usd"] + cost, 6)
+        self.token_usage["llm_calls"] += 1
+
+        entry = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "event_type": "llm_call",
+            "run_id": run_id,
+            "purpose": purpose,
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "cost_usd": cost,
+        }
+        self._write_entry(entry)
 
     def log_case_start(self, case_data: Dict[str, Any]):
         """Log case initialization."""

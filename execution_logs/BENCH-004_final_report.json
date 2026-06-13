@@ -39,7 +39,7 @@
     "iterations": [
       {
         "iteration_number": 1,
-        "timestamp": "2026-06-13T22:19:43.828279",
+        "timestamp": "2026-06-13T22:31:13.192815",
         "hypothesis": {
           "type": "lateral_movement",
           "description": "First-glance hypothesis: lateral_movement.",
@@ -50,7 +50,7 @@
           "gaps": [
             "Needs corroboration"
           ],
-          "created_at": "2026-06-13T22:19:43.827448",
+          "created_at": "2026-06-13T22:31:13.192083",
           "iteration": 1
         },
         "tools_executed": [
@@ -66,7 +66,7 @@
             },
             "execution_id": "exec-0003",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.827927"
+            "timestamp": "2026-06-13T22:31:13.192416"
           },
           {
             "tool": "analyze_memory_dump",
@@ -76,7 +76,7 @@
             },
             "execution_id": "exec-0004",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.828093"
+            "timestamp": "2026-06-13T22:31:13.192540"
           }
         ],
         "findings": [
@@ -111,7 +111,7 @@
       },
       {
         "iteration_number": 2,
-        "timestamp": "2026-06-13T22:19:43.829396",
+        "timestamp": "2026-06-13T22:31:13.194476",
         "hypothesis": {
           "type": "c2_beaconing",
           "description": "Command-and-control beaconing: periodic encrypted outbound connections.",
@@ -122,7 +122,7 @@
             "mft_timeline"
           ],
           "gaps": [],
-          "created_at": "2026-06-13T22:19:43.828469",
+          "created_at": "2026-06-13T22:31:13.193186",
           "iteration": 2
         },
         "tools_executed": [
@@ -134,7 +134,7 @@
             },
             "execution_id": "exec-0005",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.829201"
+            "timestamp": "2026-06-13T22:31:13.193944"
           },
           {
             "tool": "analyze_prefetch",
@@ -143,7 +143,7 @@
             },
             "execution_id": "exec-0006",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.829355"
+            "timestamp": "2026-06-13T22:31:13.194190"
           }
         ],
         "findings": [
@@ -174,7 +174,18 @@
     ],
     "total_tools_executed": 4,
     "self_corrections": 1,
-    "hallucinations_caught": 1
+    "hallucinations_caught": 1,
+    "token_usage": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "cost_usd": 0.0,
+      "llm_calls": 4
+    },
+    "evidence_integrity": {
+      "files_hashed": 0,
+      "spoliation_events": 0
+    }
   },
-  "generated_at": "2026-06-13T22:19:43.829916"
+  "generated_at": "2026-06-13T22:31:13.195275"
 }

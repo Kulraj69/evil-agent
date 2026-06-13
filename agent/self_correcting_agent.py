@@ -205,10 +205,12 @@ class SelfCorrectingAgent:
 
         # Use LLM to generate initial hypothesis from evidence
         hypothesis_prompt = self._build_hypothesis_prompt(case_data, initial_evidence)
+        run_id = f"initial_triage_{int(time.time())}"
         hypothesis_response = self.llm.complete(
             messages=[{"role": "user", "content": hypothesis_prompt}],
-            run_id=f"initial_triage_{int(time.time())}"
+            run_id=run_id
         )
+        self.logger.log_llm_call(run_id, "initial_hypothesis", hypothesis_response)
 
         # Parse hypothesis from LLM response
         hypothesis = self._parse_hypothesis(hypothesis_response["content"], iteration=1)
@@ -281,10 +283,12 @@ class SelfCorrectingAgent:
         """
         findings_prompt = self._build_findings_prompt(evidence, hypothesis)
 
+        run_id = f"findings_gen_{int(time.time())}"
         findings_response = self.llm.complete(
             messages=[{"role": "user", "content": findings_prompt}],
-            run_id=f"findings_gen_{int(time.time())}"
+            run_id=run_id
         )
+        self.logger.log_llm_call(run_id, "findings_generation", findings_response)
 
         # Parse findings (expecting JSON)
         findings = self._parse_findings(findings_response["content"])
@@ -488,10 +492,12 @@ Output JSON:
 }}
 """
 
+        run_id = f"refine_{iteration_num}"
         response = self.llm.complete(
             messages=[{"role": "user", "content": refinement_prompt}],
-            run_id=f"refine_{iteration_num}"
+            run_id=run_id
         )
+        self.logger.log_llm_call(run_id, "hypothesis_refinement", response)
 
         # Parse refined hypothesis
         refined = self._parse_hypothesis(response["content"], iteration=iteration_num + 1)
@@ -537,7 +543,12 @@ Output JSON:
                 "hallucinations_caught": sum(
                     sum(1 for v in it.validation_results if not v.is_supported)
                     for it in iterations
-                )
+                ),
+                "token_usage": getattr(self.logger, "token_usage", {}),
+                "evidence_integrity": {
+                    "files_hashed": len(getattr(self.mcp_tools, "integrity_ledger", {})),
+                    "spoliation_events": len(getattr(self.mcp_tools, "spoliation_events", [])),
+                }
             },
             "generated_at": datetime.utcnow().isoformat()
         }

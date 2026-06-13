@@ -4,6 +4,22 @@
 **Deadline:** June 15, 2026
 **Prize:** $10,000 + SANS Summit + Course
 
+> ### ⚠️ What is real vs. simulated (full transparency)
+> - **Real:** the self-correction loop, the anti-hallucination validator, the
+>   typed read-only MCP server + architectural guardrails, the evidence-integrity
+>   (SHA-256 spoliation) controls, the audit/token logging, and the accuracy
+>   benchmark harness. These all run and are reproducible.
+> - **Real-but-requires-environment:** `mcp_server/real_sift_tools.py` +
+>   `run_real_sift.py` wrap genuine SIFT binaries (Volatility3, Sleuth Kit,
+>   python-evtx, RegRipper) read-only. They execute real analysis **when run on a
+>   SIFT Workstation with the image downloaded**; otherwise they degrade
+>   gracefully and report which binaries are missing.
+> - **Simulated:** by default the tools return scenario-based synthetic evidence
+>   (`SIFTMCPServer(scenario=...)`) so the demo/benchmark run offline with no
+>   downloads, and the LLM reasoning uses a deterministic stand-in (pluggable
+>   with Bedrock Claude). This is to keep results reproducible — **not** to imply
+>   the forensic parsing is real in that mode.
+
 ---
 
 ## 🏆 Winning Strategy
