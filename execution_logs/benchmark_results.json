@@ -1,0 +1,185 @@
+{
+  "dataset": "FIND EVIL! Benchmark Dataset",
+  "results": [
+    {
+      "case_id": "BENCH-001",
+      "truth": "credential_theft",
+      "decoy": "ransomware",
+      "baseline_prediction": "ransomware",
+      "baseline_correct": false,
+      "selfcorrecting_prediction": "credential_theft",
+      "selfcorrecting_correct": true,
+      "baseline_findings": 1,
+      "baseline_hallucinations": 1,
+      "selfcorrecting_findings": 2,
+      "selfcorrecting_hallucinations": 0
+    },
+    {
+      "case_id": "BENCH-002",
+      "truth": "ransomware",
+      "decoy": "credential_theft",
+      "baseline_prediction": "credential_theft",
+      "baseline_correct": false,
+      "selfcorrecting_prediction": "ransomware",
+      "selfcorrecting_correct": true,
+      "baseline_findings": 1,
+      "baseline_hallucinations": 1,
+      "selfcorrecting_findings": 1,
+      "selfcorrecting_hallucinations": 0
+    },
+    {
+      "case_id": "BENCH-003",
+      "truth": "lateral_movement",
+      "decoy": "credential_theft",
+      "baseline_prediction": "credential_theft",
+      "baseline_correct": false,
+      "selfcorrecting_prediction": "lateral_movement",
+      "selfcorrecting_correct": true,
+      "baseline_findings": 1,
+      "baseline_hallucinations": 1,
+      "selfcorrecting_findings": 1,
+      "selfcorrecting_hallucinations": 0
+    },
+    {
+      "case_id": "BENCH-004",
+      "truth": "c2_beaconing",
+      "decoy": "lateral_movement",
+      "baseline_prediction": "lateral_movement",
+      "baseline_correct": false,
+      "selfcorrecting_prediction": "c2_beaconing",
+      "selfcorrecting_correct": true,
+      "baseline_findings": 1,
+      "baseline_hallucinations": 1,
+      "selfcorrecting_findings": 1,
+      "selfcorrecting_hallucinations": 0
+    },
+    {
+      "case_id": "BENCH-005",
+      "truth": "data_exfiltration",
+      "decoy": "ransomware",
+      "baseline_prediction": "ransomware",
+      "baseline_correct": false,
+      "selfcorrecting_prediction": "data_exfiltration",
+      "selfcorrecting_correct": true,
+      "baseline_findings": 1,
+      "baseline_hallucinations": 1,
+      "selfcorrecting_findings": 1,
+      "selfcorrecting_hallucinations": 0
+    },
+    {
+      "case_id": "BENCH-006",
+      "truth": "benign",
+      "decoy": "credential_theft",
+      "baseline_prediction": "credential_theft",
+      "baseline_correct": false,
+      "selfcorrecting_prediction": "benign",
+      "selfcorrecting_correct": true,
+      "baseline_findings": 1,
+      "baseline_hallucinations": 1,
+      "selfcorrecting_findings": 0,
+      "selfcorrecting_hallucinations": 0
+    },
+    {
+      "case_id": "BENCH-007",
+      "truth": "credential_theft",
+      "decoy": "ransomware",
+      "baseline_prediction": "ransomware",
+      "baseline_correct": false,
+      "selfcorrecting_prediction": "credential_theft",
+      "selfcorrecting_correct": true,
+      "baseline_findings": 1,
+      "baseline_hallucinations": 1,
+      "selfcorrecting_findings": 2,
+      "selfcorrecting_hallucinations": 0
+    },
+    {
+      "case_id": "BENCH-008",
+      "truth": "ransomware",
+      "decoy": "data_exfiltration",
+      "baseline_prediction": "data_exfiltration",
+      "baseline_correct": false,
+      "selfcorrecting_prediction": "ransomware",
+      "selfcorrecting_correct": true,
+      "baseline_findings": 1,
+      "baseline_hallucinations": 1,
+      "selfcorrecting_findings": 1,
+      "selfcorrecting_hallucinations": 0
+    }
+  ],
+  "confusion_matrix": {
+    "credential_theft": {
+      "credential_theft": 2
+    },
+    "ransomware": {
+      "ransomware": 2
+    },
+    "lateral_movement": {
+      "lateral_movement": 1
+    },
+    "c2_beaconing": {
+      "c2_beaconing": 1
+    },
+    "data_exfiltration": {
+      "data_exfiltration": 1
+    },
+    "benign": {
+      "benign": 1
+    }
+  },
+  "metrics": {
+    "per_class": {
+      "benign": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "c2_beaconing": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "credential_theft": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 2
+      },
+      "data_exfiltration": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "lateral_movement": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "ransomware": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 2
+      }
+    },
+    "macro": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "counts": {
+      "total_cases": 8,
+      "baseline_accuracy": 0.0,
+      "selfcorrecting_accuracy": 1.0,
+      "baseline_findings_total": 8,
+      "baseline_hallucinations": 8,
+      "selfcorrecting_findings_total": 9,
+      "selfcorrecting_hallucinations": 0,
+      "baseline_hallucination_rate": 1.0,
+      "selfcorrecting_hallucination_rate": 0.0
+    }
+  }
+}

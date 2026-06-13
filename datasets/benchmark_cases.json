@@ -1,0 +1,135 @@
+{
+  "metadata": {
+    "name": "FIND EVIL! Benchmark Dataset",
+    "version": "1.0",
+    "description": "Labeled incident-response triage cases for accuracy benchmarking. Each case bundles a set of forensic-artifact scenarios (returned by the SIFT MCP server in scenario mode) and a ground-truth label for the true incident type. Scenarios are modeled on patterns found in the NIST CFReDS, DFIR, and SANS sample images.",
+    "license": "Apache-2.0",
+    "ground_truth_schema": {
+      "incident_type": "Canonical incident classification the agent should converge on",
+      "mitre_techniques": "Expected MITRE ATT&CK techniques",
+      "decoy_hypothesis": "A plausible-but-wrong first hypothesis the evidence superficially suggests"
+    }
+  },
+  "cases": [
+    {
+      "case_id": "BENCH-001",
+      "title": "Admin workstation - suspicious executable",
+      "description": "Suspicious activity detected on admin workstation after a single executable ran repeatedly.",
+      "evidence": {
+        "disk_image": "/evidence/case001/disk.dd",
+        "memory_dump": "/evidence/case001/memory.raw",
+        "event_logs": "/evidence/case001/Security.evtx"
+      },
+      "ground_truth": {
+        "incident_type": "credential_theft",
+        "decoy_hypothesis": "ransomware",
+        "mitre_techniques": ["T1110.001", "T1003.001", "T1547.001"]
+      }
+    },
+    {
+      "case_id": "BENCH-002",
+      "title": "File server - mass file modification",
+      "description": "File server alerted on thousands of file extension changes within minutes.",
+      "evidence": {
+        "disk_image": "/evidence/case002/disk.dd",
+        "memory_dump": "/evidence/case002/memory.raw",
+        "event_logs": "/evidence/case002/System.evtx"
+      },
+      "ground_truth": {
+        "incident_type": "ransomware",
+        "decoy_hypothesis": "credential_theft",
+        "mitre_techniques": ["T1486", "T1490", "T1059.001"]
+      }
+    },
+    {
+      "case_id": "BENCH-003",
+      "title": "Jump host - anomalous remote logons",
+      "description": "Jump host shows logons originating from multiple internal hosts in rapid succession.",
+      "evidence": {
+        "disk_image": "/evidence/case003/disk.dd",
+        "memory_dump": "/evidence/case003/memory.raw",
+        "event_logs": "/evidence/case003/Security.evtx"
+      },
+      "ground_truth": {
+        "incident_type": "lateral_movement",
+        "decoy_hypothesis": "credential_theft",
+        "mitre_techniques": ["T1021.001", "T1021.002", "T1570"]
+      }
+    },
+    {
+      "case_id": "BENCH-004",
+      "title": "Web server - outbound beaconing",
+      "description": "Web server generating periodic outbound connections to an unfamiliar host.",
+      "evidence": {
+        "disk_image": "/evidence/case004/disk.dd",
+        "memory_dump": "/evidence/case004/memory.raw",
+        "event_logs": "/evidence/case004/Security.evtx"
+      },
+      "ground_truth": {
+        "incident_type": "c2_beaconing",
+        "decoy_hypothesis": "lateral_movement",
+        "mitre_techniques": ["T1071.001", "T1573", "T1105"]
+      }
+    },
+    {
+      "case_id": "BENCH-005",
+      "title": "Finance laptop - large encrypted upload",
+      "description": "Finance laptop transferred a large encrypted archive to external storage before going offline.",
+      "evidence": {
+        "disk_image": "/evidence/case005/disk.dd",
+        "memory_dump": "/evidence/case005/memory.raw",
+        "event_logs": "/evidence/case005/Security.evtx"
+      },
+      "ground_truth": {
+        "incident_type": "data_exfiltration",
+        "decoy_hypothesis": "ransomware",
+        "mitre_techniques": ["T1560.001", "T1048.002", "T1567.002"]
+      }
+    },
+    {
+      "case_id": "BENCH-006",
+      "title": "Kiosk PC - benign software install",
+      "description": "Kiosk PC flagged by EDR after an IT-pushed software update ran with elevated rights.",
+      "evidence": {
+        "disk_image": "/evidence/case006/disk.dd",
+        "memory_dump": "/evidence/case006/memory.raw",
+        "event_logs": "/evidence/case006/Security.evtx"
+      },
+      "ground_truth": {
+        "incident_type": "benign",
+        "decoy_hypothesis": "credential_theft",
+        "mitre_techniques": []
+      }
+    },
+    {
+      "case_id": "BENCH-007",
+      "title": "Developer box - scheduled task persistence",
+      "description": "Developer workstation runs an unknown binary every login via a new scheduled task and Run key.",
+      "evidence": {
+        "disk_image": "/evidence/case007/disk.dd",
+        "memory_dump": "/evidence/case007/memory.raw",
+        "event_logs": "/evidence/case007/Security.evtx"
+      },
+      "ground_truth": {
+        "incident_type": "credential_theft",
+        "decoy_hypothesis": "ransomware",
+        "mitre_techniques": ["T1110.001", "T1003.001", "T1547.001"]
+      }
+    },
+    {
+      "case_id": "BENCH-008",
+      "title": "Database server - bulk file rename",
+      "description": "Database server volume shows mass rename to a single new extension and dropped ransom note.",
+      "evidence": {
+        "disk_image": "/evidence/case008/disk.dd",
+        "memory_dump": "/evidence/case008/memory.raw",
+        "event_logs": "/evidence/case008/System.evtx"
+      },
+      "ground_truth": {
+        "incident_type": "ransomware",
+        "decoy_hypothesis": "data_exfiltration",
+        "mitre_techniques": ["T1486", "T1490", "T1059.001"]
+      }
+    }
+  ]
+}

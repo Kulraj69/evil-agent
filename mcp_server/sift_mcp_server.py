@@ -41,14 +41,21 @@ class SIFTMCPServer:
     - Structured output with evidence tracking
     """
 
-    def __init__(self, evidence_path: str = "/evidence"):
+    def __init__(self, evidence_path: str = "/evidence", scenario: str = "credential_theft"):
         """
         Initialize SIFT MCP Server.
 
         Args:
             evidence_path: Base path for evidence files
+            scenario: Ground-truth scenario that drives the synthetic evidence
+                returned by the tools. This lets one MCP server replay any of the
+                labeled benchmark cases (datasets/benchmark_cases.json) so the
+                agent can be evaluated against known answers. Supported values:
+                "credential_theft", "ransomware", "lateral_movement",
+                "c2_beaconing", "data_exfiltration", "benign".
         """
         self.evidence_path = evidence_path
+        self.scenario = scenario
         self.execution_counter = 0
 
         # Track all executions for audit
@@ -435,16 +442,29 @@ class SIFTMCPServer:
     # ========================================================================
 
     def _mock_prefetch_analysis(self, time_range: str) -> Dict:
-        """Mock prefetch analysis (replace with real parsing)."""
+        """Scenario-aware prefetch analysis (replace with real parsing)."""
+        if self.scenario == "ransomware":
+            exe = "encryptor.exe"
+        elif self.scenario == "lateral_movement":
+            exe = "psexec.exe"
+        elif self.scenario == "c2_beaconing":
+            exe = "svc_update.exe"
+        elif self.scenario == "data_exfiltration":
+            exe = "rclone.exe"
+        elif self.scenario == "benign":
+            exe = "it_update.exe"
+        else:
+            exe = "suspicious.exe"
+
         return {
             "total_executables": 156,
             "recent_executions": [
                 {
-                    "executable": "suspicious.exe",
+                    "executable": exe,
                     "last_run": "2026-04-15T14:23:17Z",
                     "run_count": 5,
-                    "file_path": "C:\\Users\\Admin\\Downloads\\suspicious.exe",
-                    "prefetch_file": "SUSPICIOUS.EXE-A1B2C3D4.pf"
+                    "file_path": f"C:\\Users\\Admin\\Downloads\\{exe}",
+                    "prefetch_file": f"{exe.upper()}-A1B2C3D4.pf"
                 },
                 {
                     "executable": "powershell.exe",
@@ -457,7 +477,39 @@ class SIFTMCPServer:
         }
 
     def _mock_mft_timeline(self) -> Dict:
-        """Mock MFT timeline (replace with real extraction)."""
+        """Scenario-aware MFT timeline (replace with real extraction)."""
+        # Only ransomware and data_exfiltration show heavy file activity;
+        # ransomware shows MASS modifications in a short window.
+        if self.scenario == "ransomware":
+            return {
+                "total_file_modifications": 8421,
+                "suspicious_patterns": ["mass_extension_change:.locked", "ransom_note:README_RESTORE.txt"],
+                "mass_file_modifications": True,
+                "timeline_window": "2026-04-15T14:30:00Z to 2026-04-15T14:36:00Z",
+                "sample_entries": [
+                    {
+                        "file": "C:\\Data\\report.xlsx.locked",
+                        "created": "2026-04-15T14:31:02Z",
+                        "modified": "2026-04-15T14:31:02Z",
+                        "accessed": "2026-04-15T14:31:02Z"
+                    }
+                ]
+            }
+        if self.scenario == "data_exfiltration":
+            return {
+                "total_file_modifications": 134,
+                "suspicious_patterns": ["large_archive_created:backup_2026.7z"],
+                "mass_file_modifications": False,
+                "timeline_window": "2026-04-15T13:50:00Z to 2026-04-15T14:20:00Z",
+                "sample_entries": [
+                    {
+                        "file": "C:\\Users\\Finance\\AppData\\Local\\Temp\\backup_2026.7z",
+                        "created": "2026-04-15T14:05:00Z",
+                        "modified": "2026-04-15T14:18:00Z",
+                        "accessed": "2026-04-15T14:18:00Z"
+                    }
+                ]
+            }
         return {
             "total_file_modifications": 12,
             "suspicious_patterns": [],
@@ -474,7 +526,71 @@ class SIFTMCPServer:
         }
 
     def _mock_event_log_parsing(self, event_ids: List[int]) -> Dict:
-        """Mock event log parsing."""
+        """Scenario-aware event log parsing."""
+        if self.scenario == "lateral_movement":
+            # Many successful network logons from DIFFERENT internal hosts
+            logons = [
+                {
+                    "event_id": 4624,
+                    "timestamp": f"2026-04-15T14:2{i}:00Z",
+                    "description": "Successful login",
+                    "account": "svc_admin",
+                    "logon_type": 3,
+                    "source_ip": f"10.0.0.{20 + i}"
+                }
+                for i in range(0, 9)
+            ]
+            return {
+                "total_events": 980,
+                "filtered_events": logons,
+                "summary": {
+                    "failed_logins": 0,
+                    "successful_logins": 9,
+                    "distinct_source_hosts": 9,
+                    "brute_force_detected": False,
+                    "lateral_movement_detected": True
+                }
+            }
+        if self.scenario == "benign":
+            return {
+                "total_events": 640,
+                "filtered_events": [
+                    {
+                        "event_id": 4624,
+                        "timestamp": "2026-04-15T09:00:00Z",
+                        "description": "Successful login",
+                        "account": "it_service",
+                        "logon_type": 5,
+                        "source_ip": "127.0.0.1"
+                    }
+                ],
+                "summary": {
+                    "failed_logins": 0,
+                    "successful_logins": 1,
+                    "brute_force_detected": False
+                }
+            }
+        if self.scenario in ("ransomware", "c2_beaconing", "data_exfiltration"):
+            # Some auth noise but no brute force signal
+            return {
+                "total_events": 1100,
+                "filtered_events": [
+                    {
+                        "event_id": 4624,
+                        "timestamp": "2026-04-15T14:00:00Z",
+                        "description": "Successful login",
+                        "account": "user",
+                        "logon_type": 2,
+                        "source_ip": "127.0.0.1"
+                    }
+                ],
+                "summary": {
+                    "failed_logins": 2,
+                    "successful_logins": 1,
+                    "brute_force_detected": False
+                }
+            }
+        # credential_theft (default): brute force then success
         return {
             "total_events": 1247,
             "filtered_events": [
@@ -486,7 +602,6 @@ class SIFTMCPServer:
                     "source_ip": "192.168.1.100",
                     "failure_reason": "Unknown user name or bad password"
                 },
-                # Repeated failed attempts
                 *[
                     {
                         "event_id": 4625,
@@ -501,7 +616,7 @@ class SIFTMCPServer:
                     "timestamp": "2026-04-15T14:22:45Z",
                     "description": "Successful login",
                     "account": "admin",
-                    "logon_type": 3,  # Network
+                    "logon_type": 3,
                     "source_ip": "192.168.1.100"
                 }
             ],
@@ -513,10 +628,10 @@ class SIFTMCPServer:
         }
 
     def _mock_memory_analysis(self, plugin: str) -> Dict:
-        """Mock memory analysis."""
-        if plugin == "mimikatz":
+        """Scenario-aware memory analysis."""
+        if plugin in ("mimikatz", "lsadump") and self.scenario == "credential_theft":
             return {
-                "plugin": "mimikatz",
+                "plugin": plugin,
                 "lsass_injection": True,
                 "suspicious_processes": [
                     {
@@ -532,12 +647,57 @@ class SIFTMCPServer:
                 "credential_dumping_indicators": True,
                 "credentials_found": 0  # Sanitized
             }
-        else:
-            return {"plugin": plugin, "results": []}
+        if plugin == "netscan" and self.scenario == "c2_beaconing":
+            return {
+                "plugin": "netscan",
+                "beaconing_detected": True,
+                "connections": [
+                    {
+                        "process": "svc_update.exe",
+                        "pid": 4501,
+                        "remote_addr": "185.99.42.17",
+                        "remote_port": 443,
+                        "state": "ESTABLISHED",
+                        "interval_seconds": 60
+                    }
+                ],
+                "credential_dumping_indicators": False
+            }
+        if plugin == "netscan" and self.scenario == "data_exfiltration":
+            return {
+                "plugin": "netscan",
+                "beaconing_detected": False,
+                "connections": [
+                    {
+                        "process": "rclone.exe",
+                        "pid": 5210,
+                        "remote_addr": "203.0.113.55",
+                        "remote_port": 443,
+                        "state": "ESTABLISHED",
+                        "bytes_sent": 524288000
+                    }
+                ],
+                "large_outbound_transfer": True,
+                "credential_dumping_indicators": False
+            }
+        if plugin in ("pslist", "malfind") and self.scenario == "lateral_movement":
+            return {
+                "plugin": plugin,
+                "suspicious_processes": [
+                    {
+                        "name": "psexesvc.exe",
+                        "pid": 3300,
+                        "parent": "services.exe",
+                        "remote_exec": True
+                    }
+                ],
+                "credential_dumping_indicators": False
+            }
+        return {"plugin": plugin, "results": [], "credential_dumping_indicators": False}
 
     def _mock_registry_search(self, key_pattern: Optional[str]) -> Dict:
-        """Mock registry search."""
-        if key_pattern and "Run" in key_pattern:
+        """Scenario-aware registry search."""
+        if key_pattern and "Run" in key_pattern and self.scenario == "credential_theft":
             return {
                 "total_keys": 15,
                 "matches": [
