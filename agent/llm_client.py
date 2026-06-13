@@ -64,12 +64,33 @@ class AzureOpenAIClient:
 
     def complete(self, messages: List[Dict[str, str]], run_id: str, **kwargs) -> Dict[str, Any]:
         full_messages = [{"role": "system", "content": SYSTEM_PROMPT}, *messages]
-        resp = self._client.chat.completions.create(
-            model=self.deployment,
-            messages=full_messages,
-            temperature=kwargs.get("temperature", 0.1),
-            max_tokens=kwargs.get("max_tokens", 1200),
-        )
+        max_tokens = kwargs.get("max_tokens", 1200)
+        temperature = kwargs.get("temperature", 0.1)
+
+        # Newer Azure models (e.g. the gpt-5.x / o-series family) renamed
+        # max_tokens -> max_completion_tokens and only accept the default
+        # temperature. Try the modern signature first, then fall back.
+        attempts = [
+            {"max_completion_tokens": max_tokens},
+            {"max_completion_tokens": max_tokens, "temperature": temperature},
+            {"max_tokens": max_tokens, "temperature": temperature},
+        ]
+        resp = None
+        last_err = None
+        for extra in attempts:
+            try:
+                resp = self._client.chat.completions.create(
+                    model=self.deployment,
+                    messages=full_messages,
+                    **extra,
+                )
+                break
+            except Exception as e:  # parameter incompatibility -> try next shape
+                last_err = e
+                if "unsupported" not in str(e).lower() and "max_tokens" not in str(e).lower() and "temperature" not in str(e).lower():
+                    raise
+        if resp is None:
+            raise last_err
         content = resp.choices[0].message.content or ""
         usage = getattr(resp, "usage", None)
         input_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0

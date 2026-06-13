@@ -65,15 +65,15 @@
     "file_paths": []
   },
   "mitre_attack_techniques": [
+    "T1110.001",
     "T1547.001",
-    "T1003.001",
-    "T1110.001"
+    "T1003.001"
   ],
   "audit_trail": {
     "iterations": [
       {
         "iteration_number": 1,
-        "timestamp": "2026-06-13T22:37:47.360677",
+        "timestamp": "2026-06-13T23:51:34.703823",
         "hypothesis": {
           "type": "ransomware",
           "description": "Suspected ransomware attack based on suspicious executable execution. The file 'suspicious.exe' was executed 5 times, suggesting potential malicious activity consistent with ransomware deployment.",
@@ -85,7 +85,7 @@
             "Need to verify file encryption activity",
             "No network communication analysis yet"
           ],
-          "created_at": "2026-06-13T22:37:47.359701",
+          "created_at": "2026-06-13T23:51:34.702033",
           "iteration": 1
         },
         "tools_executed": [
@@ -96,7 +96,7 @@
             },
             "execution_id": "exec-0003",
             "success": true,
-            "timestamp": "2026-06-13T22:37:47.360080"
+            "timestamp": "2026-06-13T23:51:34.702980"
           }
         ],
         "findings": [
@@ -169,7 +169,7 @@
       },
       {
         "iteration_number": 2,
-        "timestamp": "2026-06-13T22:37:47.362757",
+        "timestamp": "2026-06-13T23:51:34.706447",
         "hypothesis": {
           "type": "credential_theft",
           "description": "Credential theft attack with persistence. Initial ransomware hypothesis contradicted by lack of file encryption activity. Evidence now points to credential dumping via LSASS injection following brute-force authentication, with persistence established via registry Run key.",
@@ -180,7 +180,7 @@
             "SYSTEM_registry.hive"
           ],
           "gaps": [],
-          "created_at": "2026-06-13T22:37:47.360974",
+          "created_at": "2026-06-13T23:51:34.704259",
           "iteration": 2
         },
         "tools_executed": [
@@ -192,7 +192,7 @@
             },
             "execution_id": "exec-0004",
             "success": true,
-            "timestamp": "2026-06-13T22:37:47.361583"
+            "timestamp": "2026-06-13T23:51:34.705125"
           },
           {
             "tool": "parse_event_logs",
@@ -207,7 +207,7 @@
             },
             "execution_id": "exec-0005",
             "success": true,
-            "timestamp": "2026-06-13T22:37:47.361811"
+            "timestamp": "2026-06-13T23:51:34.705397"
           },
           {
             "tool": "search_registry_hive",
@@ -217,7 +217,7 @@
             },
             "execution_id": "exec-0006",
             "success": true,
-            "timestamp": "2026-06-13T22:37:47.361982"
+            "timestamp": "2026-06-13T23:51:34.705662"
           }
         ],
         "findings": [
@@ -295,5 +295,5 @@
       "spoliation_events": 0
     }
   },
-  "generated_at": "2026-06-13T22:37:47.363230"
+  "generated_at": "2026-06-13T23:51:34.707138"
 }
