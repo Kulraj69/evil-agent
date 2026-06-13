@@ -170,7 +170,15 @@ def run_benchmark():
     with open(dataset_path) as f:
         dataset = json.load(f)
 
-    cases = dataset["cases"]
+    # Cases that reference real, not-yet-downloaded forensic images are skipped
+    # by the synthetic-scenario harness (they require real SIFT tool integration
+    # to evaluate). Their provenance is documented in the dataset and datasets/README.md.
+    all_cases = dataset["cases"]
+    skipped = [c for c in all_cases if c.get("status", "").startswith("real_image_reference")]
+    cases = [c for c in all_cases if c not in skipped]
+    if skipped:
+        print(f"(skipping {len(skipped)} real-image case(s) pending SIFT tool integration: "
+              f"{', '.join(c['case_id'] for c in skipped)})\n")
 
     results = []
     confusion = defaultdict(lambda: defaultdict(int))  # actual -> predicted -> count

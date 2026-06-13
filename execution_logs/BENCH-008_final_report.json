@@ -1,0 +1,162 @@
+{
+  "summary": {
+    "hypothesis": "ransomware",
+    "description": "Ransomware: mass file encryption with extension change and ransom note.",
+    "confidence": 0.9,
+    "total_iterations": 2,
+    "converged": true
+  },
+  "findings": [
+    {
+      "finding_id": "F-001",
+      "claim": "Mass file modification consistent with encryption",
+      "evidence_artifacts": [
+        "mft_timeline"
+      ],
+      "confidence": 0.93,
+      "mitre_attack": "T1486",
+      "timestamp": "2026-04-15T14:31:00Z",
+      "validated": true
+    }
+  ],
+  "timeline": [
+    {
+      "timestamp": "2026-04-15T14:31:00Z",
+      "event": "Mass file modification consistent with encryption",
+      "mitre_attack": "T1486"
+    }
+  ],
+  "iocs": {
+    "file_hashes": [],
+    "ip_addresses": [],
+    "registry_keys": [],
+    "file_paths": []
+  },
+  "mitre_attack_techniques": [
+    "T1486"
+  ],
+  "audit_trail": {
+    "iterations": [
+      {
+        "iteration_number": 1,
+        "timestamp": "2026-06-13T22:19:43.844669",
+        "hypothesis": {
+          "type": "data_exfiltration",
+          "description": "First-glance hypothesis: data_exfiltration.",
+          "confidence": 0.7,
+          "supporting_evidence": [
+            "prefetch"
+          ],
+          "gaps": [
+            "Needs corroboration"
+          ],
+          "created_at": "2026-06-13T22:19:43.844149",
+          "iteration": 1
+        },
+        "tools_executed": [
+          {
+            "tool": "analyze_memory_dump",
+            "args": {
+              "dump_path": "/evidence/case008/memory.raw",
+              "plugin": "netscan"
+            },
+            "execution_id": "exec-0003",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.844505"
+          },
+          {
+            "tool": "extract_mft_timeline",
+            "args": {
+              "image_path": "/evidence/case008/disk.dd"
+            },
+            "execution_id": "exec-0004",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.844623"
+          }
+        ],
+        "findings": [
+          {
+            "finding_id": "F-001",
+            "claim": "Mass file modification consistent with encryption",
+            "evidence_artifacts": [
+              "mft_timeline"
+            ],
+            "confidence": 0.93,
+            "mitre_attack": "T1486",
+            "timestamp": "2026-04-15T14:31:00Z",
+            "validated": true
+          }
+        ],
+        "validation_results": [
+          {
+            "is_supported": true,
+            "confidence": 1.0,
+            "reason": "Claim supported by evidence with good alignment",
+            "missing_evidence": []
+          }
+        ],
+        "gaps_identified": [
+          "CONTRADICTION: No large outbound transfer found for data-exfiltration hypothesis"
+        ],
+        "reasoning": "Refinement needed: 1 contradiction(s), confidence at 1.00. Gaps: CONTRADICTION: No large outbound transfer found for data-exfiltration hypothesis",
+        "action_taken": "refine"
+      },
+      {
+        "iteration_number": 2,
+        "timestamp": "2026-06-13T22:19:43.845331",
+        "hypothesis": {
+          "type": "ransomware",
+          "description": "Ransomware: mass file encryption with extension change and ransom note.",
+          "confidence": 0.9,
+          "supporting_evidence": [
+            "auth_events",
+            "memory_dump",
+            "mft_timeline"
+          ],
+          "gaps": [],
+          "created_at": "2026-06-13T22:19:43.844800",
+          "iteration": 2
+        },
+        "tools_executed": [
+          {
+            "tool": "extract_mft_timeline",
+            "args": {
+              "image_path": "/evidence/case008/disk.dd"
+            },
+            "execution_id": "exec-0005",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.845296"
+          }
+        ],
+        "findings": [
+          {
+            "finding_id": "F-001",
+            "claim": "Mass file modification consistent with encryption",
+            "evidence_artifacts": [
+              "mft_timeline"
+            ],
+            "confidence": 0.93,
+            "mitre_attack": "T1486",
+            "timestamp": "2026-04-15T14:31:00Z",
+            "validated": true
+          }
+        ],
+        "validation_results": [
+          {
+            "is_supported": true,
+            "confidence": 1.0,
+            "reason": "Claim supported by evidence with good alignment",
+            "missing_evidence": []
+          }
+        ],
+        "gaps_identified": [],
+        "reasoning": "Convergence achieved: 1.00 confidence, hypothesis consistent with evidence, no contradictions.",
+        "action_taken": "converged"
+      }
+    ],
+    "total_tools_executed": 3,
+    "self_corrections": 1,
+    "hallucinations_caught": 0
+  },
+  "generated_at": "2026-06-13T22:19:43.845611"
+}

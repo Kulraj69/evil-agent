@@ -341,20 +341,50 @@ class SelfCorrectingAgent:
         if unsupported_count > 0:
             gaps.append(f"{unsupported_count} findings lack supporting evidence")
 
-        # Check for hypothesis-specific evidence requirements
+        # Check for hypothesis-specific evidence requirements. Each branch looks
+        # for the SIGNATURE signal of that incident type; its absence is a
+        # contradiction that drives self-correction toward the right hypothesis.
         if hypothesis.type == "ransomware":
-            # Should see file encryption activity
-            if "mft_timeline" not in evidence:
+            mft = self._findings(evidence, "mft_timeline")
+            if mft is None:
                 gaps.append("No file system timeline analysis performed")
-            elif not self._contains_encryption_indicators(evidence.get("mft_timeline")):
+            elif not mft.get("mass_file_modifications", False):
                 gaps.append("CONTRADICTION: No mass file encryption activity found for ransomware hypothesis")
 
         elif hypothesis.type == "credential_theft":
-            # Should see authentication anomalies
-            if "auth_events" not in evidence:
+            auth = self._findings(evidence, "auth_events")
+            mem = self._findings(evidence, "memory_dump")
+            if auth is None:
                 gaps.append("No authentication event analysis performed")
-            if "memory_dump" not in evidence:
+            elif not auth.get("summary", {}).get("brute_force_detected", False):
+                gaps.append("CONTRADICTION: No brute-force authentication pattern for credential-theft hypothesis")
+            if mem is None:
                 gaps.append("No memory analysis for credential dumping")
+            elif not mem.get("credential_dumping_indicators", False):
+                gaps.append("CONTRADICTION: No LSASS credential-dumping indicators in memory")
+
+        elif hypothesis.type == "lateral_movement":
+            auth = self._findings(evidence, "auth_events")
+            if auth is None:
+                gaps.append("No authentication event analysis performed")
+            else:
+                summary = auth.get("summary", {})
+                if not (summary.get("lateral_movement_detected") or summary.get("distinct_source_hosts", 0) >= 5):
+                    gaps.append("CONTRADICTION: No multi-host logon pattern for lateral-movement hypothesis")
+
+        elif hypothesis.type == "c2_beaconing":
+            net = self._findings(evidence, "memory_netscan")
+            if net is None:
+                gaps.append("No network analysis performed for C2 hypothesis")
+            elif not net.get("beaconing_detected", False):
+                gaps.append("CONTRADICTION: No periodic beaconing connections found for C2 hypothesis")
+
+        elif hypothesis.type == "data_exfiltration":
+            net = self._findings(evidence, "memory_netscan")
+            if net is None:
+                gaps.append("No network analysis performed for exfiltration hypothesis")
+            elif not net.get("large_outbound_transfer", False):
+                gaps.append("CONTRADICTION: No large outbound transfer found for data-exfiltration hypothesis")
 
         # Timeline consistency check
         if not self._check_timeline_consistency(evidence):
@@ -382,20 +412,31 @@ class SelfCorrectingAgent:
             if supported_validations else 0.0
         )
 
-        # Converge if high confidence and no major gaps
-        if avg_confidence >= self.CONVERGENCE_THRESHOLD and len(gaps) == 0:
+        # A CONTRADICTION gap means the evidence actively refutes the hypothesis
+        # (e.g. ransomware hypothesis but no mass encryption). Those drive
+        # self-correction. Other gaps are "soft" (missing corroboration) and
+        # should not block convergence once the hypothesis fits the evidence and
+        # findings are validated.
+        contradiction_gaps = [g for g in gaps if g.startswith("CONTRADICTION")]
+
+        # Converge if the hypothesis is not contradicted and findings are
+        # validated with high confidence. Use the hypothesis confidence as a
+        # floor so a well-supported corrected hypothesis can converge even when
+        # findings cite a subset of the gathered artifacts.
+        effective_confidence = max(avg_confidence, hypothesis.confidence if not contradiction_gaps else 0.0)
+        if not contradiction_gaps and effective_confidence >= self.CONVERGENCE_THRESHOLD:
             reasoning = (
-                f"Convergence achieved: {avg_confidence:.2f} confidence, "
-                f"all findings validated, no gaps identified."
+                f"Convergence achieved: {effective_confidence:.2f} confidence, "
+                f"hypothesis consistent with evidence, no contradictions."
             )
             return "converged", reasoning
 
-        # Refine if we have gaps or low confidence
-        if gaps or avg_confidence < 0.6:
+        # Refine if the hypothesis is contradicted or confidence is too low
+        if contradiction_gaps or effective_confidence < 0.6:
             reasoning = (
-                f"Refinement needed: {len(gaps)} gaps identified, "
-                f"confidence at {avg_confidence:.2f}. "
-                f"Gaps: {'; '.join(gaps[:3])}"
+                f"Refinement needed: {len(contradiction_gaps)} contradiction(s), "
+                f"confidence at {effective_confidence:.2f}. "
+                f"Gaps: {'; '.join((contradiction_gaps or gaps)[:3])}"
             )
             return "refine", reasoning
 
@@ -599,41 +640,74 @@ CRITICAL: Only make claims you can support with the provided evidence.
         ]
 
     def _plan_tools(self, hypothesis: Hypothesis, case_data: Dict) -> List[Dict]:
-        """Determine which tools to run based on hypothesis."""
-        # This would be more sophisticated in production
-        # For now, a simple mapping
+        """
+        Determine which SIFT tools to run based on the current hypothesis.
+
+        Each incident type maps to the artifacts that would confirm OR refute it.
+        Running refuting tools is what enables self-correction: e.g. a ransomware
+        hypothesis pulls the MFT timeline precisely so a *lack* of mass
+        encryption can contradict it.
+        """
+        disk = case_data.get("disk_image")
+        mem = case_data.get("memory_dump")
+        logs = case_data.get("event_logs")
 
         tools = []
 
+        def add(tool, args, key):
+            tools.append({"tool": tool, "args": args, "evidence_key": key})
+
         if hypothesis.type == "ransomware":
-            if "disk_image" in case_data:
-                tools.append({
-                    "tool": "extract_mft_timeline",
-                    "args": {"image_path": case_data["disk_image"]},
-                    "evidence_key": "mft_timeline"
-                })
+            if disk:
+                add("extract_mft_timeline", {"image_path": disk}, "mft_timeline")
 
         elif hypothesis.type == "credential_theft":
-            if "memory_dump" in case_data:
-                tools.append({
-                    "tool": "analyze_memory_dump",
-                    "args": {
-                        "dump_path": case_data["memory_dump"],
-                        "plugin": "mimikatz"
-                    },
-                    "evidence_key": "memory_dump"
-                })
-            if "event_logs" in case_data:
-                tools.append({
-                    "tool": "parse_event_logs",
-                    "args": {
-                        "log_path": case_data["event_logs"],
-                        "event_ids": [4624, 4625, 4672, 4648]
-                    },
-                    "evidence_key": "auth_events"
-                })
+            if mem:
+                add("analyze_memory_dump", {"dump_path": mem, "plugin": "mimikatz"}, "memory_dump")
+            if logs:
+                add("parse_event_logs", {"log_path": logs, "event_ids": [4624, 4625, 4672, 4648]}, "auth_events")
+            if disk:
+                add("search_registry_hive", {"hive_path": f"{disk}:SOFTWARE", "key_pattern": "Run"}, "registry_search")
+
+        elif hypothesis.type == "lateral_movement":
+            if logs:
+                add("parse_event_logs", {"log_path": logs, "event_ids": [4624, 4648, 4672]}, "auth_events")
+            if mem:
+                add("analyze_memory_dump", {"dump_path": mem, "plugin": "pslist"}, "memory_dump")
+
+        elif hypothesis.type == "c2_beaconing":
+            if mem:
+                add("analyze_memory_dump", {"dump_path": mem, "plugin": "netscan"}, "memory_netscan")
+            if disk:
+                add("analyze_prefetch", {"image_path": disk}, "prefetch")
+
+        elif hypothesis.type == "data_exfiltration":
+            if mem:
+                add("analyze_memory_dump", {"dump_path": mem, "plugin": "netscan"}, "memory_netscan")
+            if disk:
+                add("extract_mft_timeline", {"image_path": disk}, "mft_timeline")
+
+        elif hypothesis.type == "benign":
+            # Even a benign verdict should be corroborated with broad scans
+            if disk:
+                add("analyze_prefetch", {"image_path": disk}, "prefetch")
+            if logs:
+                add("parse_event_logs", {"log_path": logs, "event_ids": [4624, 4625]}, "auth_events")
 
         return tools
+
+    def _findings(self, evidence: Dict[str, Any], key: str) -> Optional[Dict[str, Any]]:
+        """
+        Return the inner `findings` payload for an evidence key, or None if the
+        tool wasn't run. MCP tool results wrap their data under `findings`; some
+        callers may already store the unwrapped dict, so handle both shapes.
+        """
+        entry = evidence.get(key)
+        if entry is None:
+            return None
+        if isinstance(entry, dict) and "findings" in entry:
+            return entry["findings"]
+        return entry
 
     def _contains_encryption_indicators(self, mft_data: Dict) -> bool:
         """Check if MFT timeline shows mass encryption activity."""

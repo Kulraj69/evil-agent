@@ -28,7 +28,18 @@ class EvidenceValidator:
     Validates findings against evidence to prevent hallucinations.
 
     This is the critical anti-hallucination layer that judges are looking for.
+
+    Layered checks (a finding must pass ALL to be supported):
+      1. Citation existence  - every cited artifact key exists in the evidence
+      2. Citation presence    - the finding cites at least one artifact
+      3. Pattern screen       - claim contains no known hallucination patterns
+      4. Numeric grounding    - any explicit count in the claim is corroborated
+      5. Claim alignment      - key terms of the claim appear in cited evidence
+      6. Citation consistency - multiple citations agree (e.g. timestamps)
     """
+
+    def __init__(self):
+        self.detector = HallucinationDetector()
 
     def validate_finding(
         self,
@@ -71,7 +82,28 @@ class EvidenceValidator:
                 missing_evidence=[]
             )
 
-        # Check 3: Citation quality - does the claim align with artifact content?
+        # Check 3: Known hallucination patterns (fabricated names/paths/precision)
+        patterns = self.detector.detect_hallucination_patterns(claim)
+        if patterns:
+            return ValidationResult(
+                is_supported=False,
+                confidence=0.0,
+                reason=f"Hallucination pattern(s) detected: {'; '.join(patterns)}",
+                missing_evidence=[]
+            )
+
+        # Check 4: Numeric grounding - any explicit count must appear in evidence
+        evidence_text_full = self._get_evidence_text(cited_artifacts, available_evidence)
+        ungrounded_numbers = self._find_ungrounded_numbers(claim, evidence_text_full)
+        if ungrounded_numbers:
+            return ValidationResult(
+                is_supported=False,
+                confidence=0.1,
+                reason=f"Claim cites number(s) not found in evidence: {', '.join(ungrounded_numbers)}",
+                missing_evidence=[]
+            )
+
+        # Check 5: Citation quality - does the claim align with artifact content?
         alignment_score = self._check_claim_alignment(claim, cited_artifacts, available_evidence)
 
         if alignment_score < 0.3:
@@ -121,12 +153,41 @@ class EvidenceValidator:
         # Check if those terms appear in the cited evidence
         evidence_text = self._get_evidence_text(cited_artifacts, evidence)
 
-        matches = sum(1 for term in claim_terms if term.lower() in evidence_text.lower())
+        evidence_lower = evidence_text.lower()
+        matches = sum(1 for term in claim_terms if term.lower() in evidence_lower)
 
-        if len(claim_terms) == 0:
+        # Concept corroboration: map claim concepts to the boolean/signal keys a
+        # forensic tool would set when that concept is true. A claim is well
+        # aligned if the evidence carries the corresponding positive signal, even
+        # if the exact natural-language words differ from the JSON field names.
+        concept_signals = {
+            "brute": ["brute_force_detected\": true", "brute_force_detected\":true"],
+            "credential": ["credential_dumping_indicators\": true", "lsass_injection\": true"],
+            "inject": ["injection_detected\": true", "lsass_injection\": true"],
+            "dump": ["credential_dumping_indicators\": true"],
+            "encrypt": ["mass_file_modifications\": true"],
+            "beacon": ["beaconing_detected\": true"],
+            "exfil": ["large_outbound_transfer\": true"],
+            "lateral": ["lateral_movement_detected\": true"],
+            "persistence": ["\"suspicious\": true", "run\\"],
+        }
+        claim_lower = claim.lower()
+        concept_hits = 0
+        concept_total = 0
+        for concept, signals in concept_signals.items():
+            if concept in claim_lower:
+                concept_total += 1
+                if any(sig in evidence_lower for sig in signals):
+                    concept_hits += 1
+
+        if len(claim_terms) == 0 and concept_total == 0:
             return 0.5  # Neutral if no specific terms
 
-        alignment = matches / len(claim_terms)
+        term_alignment = matches / len(claim_terms) if claim_terms else 0.0
+        concept_alignment = concept_hits / concept_total if concept_total else 0.0
+
+        # Take the stronger of literal term overlap and concept corroboration.
+        alignment = max(term_alignment, concept_alignment)
 
         # Boost score if we find exact phrases
         if self._contains_exact_phrases(claim, evidence_text):
@@ -207,6 +268,25 @@ class EvidenceValidator:
                 terms.append(term)
 
         return terms
+
+    def _find_ungrounded_numbers(self, claim: str, evidence_text: str) -> List[str]:
+        """
+        Find explicit integer counts in a claim (e.g. "47 failed logins") that do
+        NOT appear anywhere in the cited evidence. A common hallucination is
+        inventing precise counts, so any number >= 10 in the claim must be
+        corroborated by the evidence text.
+
+        Small numbers (< 10) are ignored to avoid false positives on things like
+        MITRE sub-technique digits or single-digit counts.
+        """
+        ungrounded = []
+        for match in re.findall(r'\b(\d+)\b', claim):
+            value = int(match)
+            if value < 10:
+                continue
+            if match not in evidence_text:
+                ungrounded.append(match)
+        return ungrounded
 
     def _get_evidence_text(
         self,

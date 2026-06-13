@@ -1,0 +1,180 @@
+{
+  "summary": {
+    "hypothesis": "c2_beaconing",
+    "description": "Command-and-control beaconing: periodic encrypted outbound connections.",
+    "confidence": 0.87,
+    "total_iterations": 2,
+    "converged": true
+  },
+  "findings": [
+    {
+      "finding_id": "F-001",
+      "claim": "Periodic outbound beaconing to external host",
+      "evidence_artifacts": [
+        "memory_netscan"
+      ],
+      "confidence": 0.9,
+      "mitre_attack": "T1071.001",
+      "timestamp": "2026-04-15T14:00:00Z",
+      "validated": true
+    }
+  ],
+  "timeline": [
+    {
+      "timestamp": "2026-04-15T14:00:00Z",
+      "event": "Periodic outbound beaconing to external host",
+      "mitre_attack": "T1071.001"
+    }
+  ],
+  "iocs": {
+    "file_hashes": [],
+    "ip_addresses": [],
+    "registry_keys": [],
+    "file_paths": []
+  },
+  "mitre_attack_techniques": [
+    "T1071.001"
+  ],
+  "audit_trail": {
+    "iterations": [
+      {
+        "iteration_number": 1,
+        "timestamp": "2026-06-13T22:19:43.828279",
+        "hypothesis": {
+          "type": "lateral_movement",
+          "description": "First-glance hypothesis: lateral_movement.",
+          "confidence": 0.7,
+          "supporting_evidence": [
+            "prefetch"
+          ],
+          "gaps": [
+            "Needs corroboration"
+          ],
+          "created_at": "2026-06-13T22:19:43.827448",
+          "iteration": 1
+        },
+        "tools_executed": [
+          {
+            "tool": "parse_event_logs",
+            "args": {
+              "log_path": "/evidence/case004/Security.evtx",
+              "event_ids": [
+                4624,
+                4648,
+                4672
+              ]
+            },
+            "execution_id": "exec-0003",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.827927"
+          },
+          {
+            "tool": "analyze_memory_dump",
+            "args": {
+              "dump_path": "/evidence/case004/memory.raw",
+              "plugin": "pslist"
+            },
+            "execution_id": "exec-0004",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.828093"
+          }
+        ],
+        "findings": [
+          {
+            "finding_id": "F-001",
+            "claim": "Periodic outbound beaconing to external host",
+            "evidence_artifacts": [
+              "memory_netscan"
+            ],
+            "confidence": 0.0,
+            "mitre_attack": "T1071.001",
+            "timestamp": "2026-04-15T14:00:00Z",
+            "validated": false
+          }
+        ],
+        "validation_results": [
+          {
+            "is_supported": false,
+            "confidence": 0.0,
+            "reason": "Citation(s) not found in evidence: memory_netscan",
+            "missing_evidence": [
+              "memory_netscan"
+            ]
+          }
+        ],
+        "gaps_identified": [
+          "1 findings lack supporting evidence",
+          "CONTRADICTION: No multi-host logon pattern for lateral-movement hypothesis"
+        ],
+        "reasoning": "Refinement needed: 1 contradiction(s), confidence at 0.00. Gaps: CONTRADICTION: No multi-host logon pattern for lateral-movement hypothesis",
+        "action_taken": "refine"
+      },
+      {
+        "iteration_number": 2,
+        "timestamp": "2026-06-13T22:19:43.829396",
+        "hypothesis": {
+          "type": "c2_beaconing",
+          "description": "Command-and-control beaconing: periodic encrypted outbound connections.",
+          "confidence": 0.87,
+          "supporting_evidence": [
+            "auth_events",
+            "memory_dump",
+            "mft_timeline"
+          ],
+          "gaps": [],
+          "created_at": "2026-06-13T22:19:43.828469",
+          "iteration": 2
+        },
+        "tools_executed": [
+          {
+            "tool": "analyze_memory_dump",
+            "args": {
+              "dump_path": "/evidence/case004/memory.raw",
+              "plugin": "netscan"
+            },
+            "execution_id": "exec-0005",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.829201"
+          },
+          {
+            "tool": "analyze_prefetch",
+            "args": {
+              "image_path": "/evidence/case004/disk.dd"
+            },
+            "execution_id": "exec-0006",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.829355"
+          }
+        ],
+        "findings": [
+          {
+            "finding_id": "F-001",
+            "claim": "Periodic outbound beaconing to external host",
+            "evidence_artifacts": [
+              "memory_netscan"
+            ],
+            "confidence": 0.9,
+            "mitre_attack": "T1071.001",
+            "timestamp": "2026-04-15T14:00:00Z",
+            "validated": true
+          }
+        ],
+        "validation_results": [
+          {
+            "is_supported": true,
+            "confidence": 1.0,
+            "reason": "Claim supported by evidence with good alignment",
+            "missing_evidence": []
+          }
+        ],
+        "gaps_identified": [],
+        "reasoning": "Convergence achieved: 1.00 confidence, hypothesis consistent with evidence, no contradictions.",
+        "action_taken": "converged"
+      }
+    ],
+    "total_tools_executed": 4,
+    "self_corrections": 1,
+    "hallucinations_caught": 1
+  },
+  "generated_at": "2026-06-13T22:19:43.829916"
+}

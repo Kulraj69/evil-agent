@@ -170,9 +170,10 @@ find-evil-agent/
 ```bash
 pip install -r requirements.txt
 
-python3 run_demo.py     # Live self-correction (ransomware → credential theft)
-python3 benchmark.py    # Accuracy benchmark over 8 labeled cases
-python3 explore.py      # Interactive menu
+python3 run_demo.py            # Live self-correction (ransomware → credential theft)
+python3 run_all_scenarios.py   # Live self-correction across all 6 incident types (8/8)
+python3 benchmark.py           # Accuracy benchmark over 8 labeled cases
+python3 explore.py             # Interactive menu
 ```
 
 | Deliverable | Status | Where |
@@ -182,8 +183,11 @@ python3 explore.py      # Interactive menu
 | Anti-hallucination validation | ✅ | `agent/evidence_validator.py` |
 | Labeled benchmark dataset (8 cases) | ✅ | `datasets/benchmark_cases.json` |
 | Accuracy report (confusion matrix, hallucination reduction) | ✅ | `ACCURACY_REPORT.md` |
+| Live multi-scenario self-correction (all 6 types) | ✅ | `run_all_scenarios.py` |
+| Real public-image cases (NIST CFReDS) with provenance | ✅ | `datasets/README.md` |
 | Architecture diagrams (PNG/SVG/HTML/Mermaid) | ✅ | `docs/` |
 | 5-minute video script | ✅ | `VIDEO_SCRIPT.md` |
+| Submission checklist | ✅ | `SUBMISSION_CHECKLIST.md` |
 | Apache 2.0 license | ✅ | `LICENSE` |
 
 ### Remaining (post-hackathon hardening)

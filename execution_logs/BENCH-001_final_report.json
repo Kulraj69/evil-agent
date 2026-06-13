@@ -1,7 +1,7 @@
 {
   "summary": {
     "hypothesis": "credential_theft",
-    "description": "Credential theft attack with persistence. Initial ransomware hypothesis contradicted by lack of file encryption activity. Evidence now points to credential dumping via LSASS injection following brute-force authentication, with persistence established via registry Run key.",
+    "description": "Credential theft via LSASS dumping after brute force, with registry persistence.",
     "confidence": 0.88,
     "total_iterations": 2,
     "converged": true
@@ -9,7 +9,7 @@
   "findings": [
     {
       "finding_id": "F-001",
-      "claim": "Brute-force authentication attack with 47 failed login attempts",
+      "claim": "Brute-force authentication attack",
       "evidence_artifacts": [
         "auth_events"
       ],
@@ -20,7 +20,7 @@
     },
     {
       "finding_id": "F-002",
-      "claim": "Credential dumping via LSASS process injection",
+      "claim": "Credential dumping via LSASS injection",
       "evidence_artifacts": [
         "memory_dump"
       ],
@@ -28,34 +28,18 @@
       "mitre_attack": "T1003.001",
       "timestamp": "2026-04-15T14:23:17Z",
       "validated": true
-    },
-    {
-      "finding_id": "F-003",
-      "claim": "Persistence established via registry Run key",
-      "evidence_artifacts": [
-        "registry_search"
-      ],
-      "confidence": 0.92,
-      "mitre_attack": "T1547.001",
-      "timestamp": "2026-04-15T14:24:00Z",
-      "validated": true
     }
   ],
   "timeline": [
     {
       "timestamp": "2026-04-15T14:20:00Z",
-      "event": "Brute-force authentication attack with 47 failed login attempts",
+      "event": "Brute-force authentication attack",
       "mitre_attack": "T1110.001"
     },
     {
       "timestamp": "2026-04-15T14:23:17Z",
-      "event": "Credential dumping via LSASS process injection",
+      "event": "Credential dumping via LSASS injection",
       "mitre_attack": "T1003.001"
-    },
-    {
-      "timestamp": "2026-04-15T14:24:00Z",
-      "event": "Persistence established via registry Run key",
-      "mitre_attack": "T1547.001"
     }
   ],
   "iocs": {
@@ -65,44 +49,42 @@
     "file_paths": []
   },
   "mitre_attack_techniques": [
-    "T1003.001",
     "T1110.001",
-    "T1547.001"
+    "T1003.001"
   ],
   "audit_trail": {
     "iterations": [
       {
         "iteration_number": 1,
-        "timestamp": "2026-06-13T22:19:43.775523",
+        "timestamp": "2026-06-13T22:19:43.815770",
         "hypothesis": {
           "type": "ransomware",
-          "description": "Suspected ransomware attack based on suspicious executable execution. The file 'suspicious.exe' was executed 5 times, suggesting potential malicious activity consistent with ransomware deployment.",
+          "description": "First-glance hypothesis: ransomware.",
           "confidence": 0.7,
           "supporting_evidence": [
             "prefetch"
           ],
           "gaps": [
-            "Need to verify file encryption activity",
-            "No network communication analysis yet"
+            "Needs corroboration"
           ],
-          "created_at": "2026-06-13T22:19:43.774665",
+          "created_at": "2026-06-13T22:19:43.815018",
           "iteration": 1
         },
         "tools_executed": [
           {
             "tool": "extract_mft_timeline",
             "args": {
-              "image_path": "/evidence/disk.dd"
+              "image_path": "/evidence/case001/disk.dd"
             },
             "execution_id": "exec-0003",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.775067"
+            "timestamp": "2026-06-13T22:19:43.815455"
           }
         ],
         "findings": [
           {
             "finding_id": "F-001",
-            "claim": "Brute-force authentication attack with 47 failed login attempts",
+            "claim": "Brute-force authentication attack",
             "evidence_artifacts": [
               "auth_events"
             ],
@@ -113,24 +95,13 @@
           },
           {
             "finding_id": "F-002",
-            "claim": "Credential dumping via LSASS process injection",
+            "claim": "Credential dumping via LSASS injection",
             "evidence_artifacts": [
               "memory_dump"
             ],
             "confidence": 0.0,
             "mitre_attack": "T1003.001",
             "timestamp": "2026-04-15T14:23:17Z",
-            "validated": false
-          },
-          {
-            "finding_id": "F-003",
-            "claim": "Persistence established via registry Run key",
-            "evidence_artifacts": [
-              "registry_search"
-            ],
-            "confidence": 0.0,
-            "mitre_attack": "T1547.001",
-            "timestamp": "2026-04-15T14:24:00Z",
             "validated": false
           }
         ],
@@ -150,18 +121,10 @@
             "missing_evidence": [
               "memory_dump"
             ]
-          },
-          {
-            "is_supported": false,
-            "confidence": 0.0,
-            "reason": "Citation(s) not found in evidence: registry_search",
-            "missing_evidence": [
-              "registry_search"
-            ]
           }
         ],
         "gaps_identified": [
-          "3 findings lack supporting evidence",
+          "2 findings lack supporting evidence",
           "CONTRADICTION: No mass file encryption activity found for ransomware hypothesis"
         ],
         "reasoning": "Refinement needed: 1 contradiction(s), confidence at 0.00. Gaps: CONTRADICTION: No mass file encryption activity found for ransomware hypothesis",
@@ -169,35 +132,35 @@
       },
       {
         "iteration_number": 2,
-        "timestamp": "2026-06-13T22:19:43.777280",
+        "timestamp": "2026-06-13T22:19:43.817596",
         "hypothesis": {
           "type": "credential_theft",
-          "description": "Credential theft attack with persistence. Initial ransomware hypothesis contradicted by lack of file encryption activity. Evidence now points to credential dumping via LSASS injection following brute-force authentication, with persistence established via registry Run key.",
+          "description": "Credential theft via LSASS dumping after brute force, with registry persistence.",
           "confidence": 0.88,
           "supporting_evidence": [
             "auth_events",
             "memory_dump",
-            "SYSTEM_registry.hive"
+            "mft_timeline"
           ],
           "gaps": [],
-          "created_at": "2026-06-13T22:19:43.775680",
+          "created_at": "2026-06-13T22:19:43.815980",
           "iteration": 2
         },
         "tools_executed": [
           {
             "tool": "analyze_memory_dump",
             "args": {
-              "dump_path": "/evidence/memory.raw",
+              "dump_path": "/evidence/case001/memory.raw",
               "plugin": "mimikatz"
             },
             "execution_id": "exec-0004",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.776291"
+            "timestamp": "2026-06-13T22:19:43.816718"
           },
           {
             "tool": "parse_event_logs",
             "args": {
-              "log_path": "/evidence/Security.evtx",
+              "log_path": "/evidence/case001/Security.evtx",
               "event_ids": [
                 4624,
                 4625,
@@ -207,23 +170,23 @@
             },
             "execution_id": "exec-0005",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.776592"
+            "timestamp": "2026-06-13T22:19:43.816948"
           },
           {
             "tool": "search_registry_hive",
             "args": {
-              "hive_path": "/evidence/disk.dd:SOFTWARE",
+              "hive_path": "/evidence/case001/disk.dd:SOFTWARE",
               "key_pattern": "Run"
             },
             "execution_id": "exec-0006",
             "success": true,
-            "timestamp": "2026-06-13T22:19:43.776802"
+            "timestamp": "2026-06-13T22:19:43.817165"
           }
         ],
         "findings": [
           {
             "finding_id": "F-001",
-            "claim": "Brute-force authentication attack with 47 failed login attempts",
+            "claim": "Brute-force authentication attack",
             "evidence_artifacts": [
               "auth_events"
             ],
@@ -234,7 +197,7 @@
           },
           {
             "finding_id": "F-002",
-            "claim": "Credential dumping via LSASS process injection",
+            "claim": "Credential dumping via LSASS injection",
             "evidence_artifacts": [
               "memory_dump"
             ],
@@ -242,26 +205,9 @@
             "mitre_attack": "T1003.001",
             "timestamp": "2026-04-15T14:23:17Z",
             "validated": true
-          },
-          {
-            "finding_id": "F-003",
-            "claim": "Persistence established via registry Run key",
-            "evidence_artifacts": [
-              "registry_search"
-            ],
-            "confidence": 0.92,
-            "mitre_attack": "T1547.001",
-            "timestamp": "2026-04-15T14:24:00Z",
-            "validated": true
           }
         ],
         "validation_results": [
-          {
-            "is_supported": true,
-            "confidence": 1.0,
-            "reason": "Claim supported by evidence with good alignment",
-            "missing_evidence": []
-          },
           {
             "is_supported": true,
             "confidence": 1.0,
@@ -282,7 +228,7 @@
     ],
     "total_tools_executed": 4,
     "self_corrections": 1,
-    "hallucinations_caught": 3
+    "hallucinations_caught": 2
   },
-  "generated_at": "2026-06-13T22:19:43.777725"
+  "generated_at": "2026-06-13T22:19:43.818232"
 }

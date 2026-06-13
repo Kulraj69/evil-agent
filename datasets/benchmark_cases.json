@@ -130,6 +130,49 @@
         "decoy_hypothesis": "data_exfiltration",
         "mitre_techniques": ["T1486", "T1490", "T1059.001"]
       }
+    },
+    {
+      "case_id": "REAL-CFREDS-LEAK",
+      "title": "NIST CFReDS Data Leakage Case (real public image)",
+      "description": "Insider copies sensitive company files to USB/CD and attempts to remove them past a security checkpoint. Maps to data_exfiltration in our taxonomy. This entry references the REAL, downloadable NIST forensic image so the harness can be pointed at genuine evidence once the image is fetched and the MCP tools are wired to real parsers.",
+      "provenance": {
+        "source": "NIST Computer Forensic Reference Data Sets (CFReDS)",
+        "url": "https://cfreds-archive.nist.gov/data_leakage_case/data-leakage-case.html",
+        "image_files": ["cfreds_2015_data_leakage_pc.E01..E04", "cfreds_2015_data_leakage_rm#1.E01"],
+        "pc_image_sha1": "72432916933F5A309A8C456B40C9601D1F8D2A4F",
+        "license": "Public NIST reference data set",
+        "answers": "https://cfreds-archive.nist.gov/data_leakage_case/leakage-answers.pdf"
+      },
+      "evidence": {
+        "disk_image": "/evidence/cfreds/cfreds_2015_data_leakage_pc.E01",
+        "removable_media": "/evidence/cfreds/cfreds_2015_data_leakage_rm#1.E01"
+      },
+      "ground_truth": {
+        "incident_type": "data_exfiltration",
+        "decoy_hypothesis": "benign",
+        "mitre_techniques": ["T1052.001", "T1074.001", "T1005"]
+      },
+      "status": "real_image_reference_pending_tool_integration"
+    },
+    {
+      "case_id": "REAL-CFREDS-HACK",
+      "title": "NIST CFReDS Hacking Case (real public image)",
+      "description": "Classic NIST hacking-case disk image (fictional names; intrusion artifacts). Maps to lateral_movement/intrusion in our taxonomy. References the REAL public NTFS image for tool-integration testing.",
+      "provenance": {
+        "source": "NIST Computer Forensic Reference Data Sets (CFReDS)",
+        "url": "https://cfreds-archive.nist.gov/",
+        "dataset": "Hacking Case",
+        "license": "Public NIST reference data set"
+      },
+      "evidence": {
+        "disk_image": "/evidence/cfreds/hacking_case.dd"
+      },
+      "ground_truth": {
+        "incident_type": "lateral_movement",
+        "decoy_hypothesis": "benign",
+        "mitre_techniques": ["T1078", "T1021.001"]
+      },
+      "status": "real_image_reference_pending_tool_integration"
     }
   ]
 }

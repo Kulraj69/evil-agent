@@ -1,0 +1,23 @@
+{
+  "case_id": "BENCH-001",
+  "started_at": "2026-06-13T22:12:12.101486",
+  "agent_version": "1.0.0",
+  "entries": [
+    {
+      "timestamp": "2026-06-13T22:12:12.101490",
+      "event_type": "case_start",
+      "case_data": {
+        "case_id": "BENCH-001",
+        "disk_image": "/evidence/case001/disk.dd",
+        "memory_dump": "/evidence/case001/memory.raw",
+        "event_logs": "/evidence/case001/Security.evtx"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T22:12:12.101749",
+      "event_type": "step",
+      "step_name": "Initial Triage",
+      "description": "Generating initial hypothesis from case context"
+    }
+  ]
+}

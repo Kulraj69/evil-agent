@@ -1,0 +1,177 @@
+{
+  "summary": {
+    "hypothesis": "lateral_movement",
+    "description": "Lateral movement: successful logons from many distinct internal hosts.",
+    "confidence": 0.86,
+    "total_iterations": 2,
+    "converged": true
+  },
+  "findings": [],
+  "timeline": [],
+  "iocs": {
+    "file_hashes": [],
+    "ip_addresses": [],
+    "registry_keys": [],
+    "file_paths": []
+  },
+  "mitre_attack_techniques": [],
+  "audit_trail": {
+    "iterations": [
+      {
+        "iteration_number": 1,
+        "timestamp": "2026-06-13T22:19:43.824448",
+        "hypothesis": {
+          "type": "credential_theft",
+          "description": "First-glance hypothesis: credential_theft.",
+          "confidence": 0.7,
+          "supporting_evidence": [
+            "prefetch"
+          ],
+          "gaps": [
+            "Needs corroboration"
+          ],
+          "created_at": "2026-06-13T22:19:43.823579",
+          "iteration": 1
+        },
+        "tools_executed": [
+          {
+            "tool": "analyze_memory_dump",
+            "args": {
+              "dump_path": "/evidence/case003/memory.raw",
+              "plugin": "mimikatz"
+            },
+            "execution_id": "exec-0003",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.823951"
+          },
+          {
+            "tool": "parse_event_logs",
+            "args": {
+              "log_path": "/evidence/case003/Security.evtx",
+              "event_ids": [
+                4624,
+                4625,
+                4672,
+                4648
+              ]
+            },
+            "execution_id": "exec-0004",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.824105"
+          },
+          {
+            "tool": "search_registry_hive",
+            "args": {
+              "hive_path": "/evidence/case003/disk.dd:SOFTWARE",
+              "key_pattern": "Run"
+            },
+            "execution_id": "exec-0005",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.824248"
+          }
+        ],
+        "findings": [
+          {
+            "finding_id": "F-001",
+            "claim": "Successful logons from multiple distinct hosts",
+            "evidence_artifacts": [
+              "auth_events"
+            ],
+            "confidence": 0.0,
+            "mitre_attack": "T1021.002",
+            "timestamp": "2026-04-15T14:20:00Z",
+            "validated": false
+          }
+        ],
+        "validation_results": [
+          {
+            "is_supported": false,
+            "confidence": 0.5,
+            "reason": "Weak evidence support (low alignment or consistency)",
+            "missing_evidence": []
+          }
+        ],
+        "gaps_identified": [
+          "1 findings lack supporting evidence",
+          "CONTRADICTION: No brute-force authentication pattern for credential-theft hypothesis",
+          "CONTRADICTION: No LSASS credential-dumping indicators in memory"
+        ],
+        "reasoning": "Refinement needed: 2 contradiction(s), confidence at 0.00. Gaps: CONTRADICTION: No brute-force authentication pattern for credential-theft hypothesis; CONTRADICTION: No LSASS credential-dumping indicators in memory",
+        "action_taken": "refine"
+      },
+      {
+        "iteration_number": 2,
+        "timestamp": "2026-06-13T22:19:43.825835",
+        "hypothesis": {
+          "type": "lateral_movement",
+          "description": "Lateral movement: successful logons from many distinct internal hosts.",
+          "confidence": 0.86,
+          "supporting_evidence": [
+            "auth_events",
+            "memory_dump",
+            "mft_timeline"
+          ],
+          "gaps": [],
+          "created_at": "2026-06-13T22:19:43.824602",
+          "iteration": 2
+        },
+        "tools_executed": [
+          {
+            "tool": "parse_event_logs",
+            "args": {
+              "log_path": "/evidence/case003/Security.evtx",
+              "event_ids": [
+                4624,
+                4648,
+                4672
+              ]
+            },
+            "execution_id": "exec-0006",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.825361"
+          },
+          {
+            "tool": "analyze_memory_dump",
+            "args": {
+              "dump_path": "/evidence/case003/memory.raw",
+              "plugin": "pslist"
+            },
+            "execution_id": "exec-0007",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.825577"
+          }
+        ],
+        "findings": [
+          {
+            "finding_id": "F-001",
+            "claim": "Successful logons from multiple distinct hosts",
+            "evidence_artifacts": [
+              "auth_events"
+            ],
+            "confidence": 0.0,
+            "mitre_attack": "T1021.002",
+            "timestamp": "2026-04-15T14:20:00Z",
+            "validated": false
+          }
+        ],
+        "validation_results": [
+          {
+            "is_supported": false,
+            "confidence": 0.5,
+            "reason": "Weak evidence support (low alignment or consistency)",
+            "missing_evidence": []
+          }
+        ],
+        "gaps_identified": [
+          "1 findings lack supporting evidence"
+        ],
+        "reasoning": "Convergence achieved: 0.86 confidence, hypothesis consistent with evidence, no contradictions.",
+        "action_taken": "converged"
+      }
+    ],
+    "total_tools_executed": 5,
+    "self_corrections": 1,
+    "hallucinations_caught": 2
+  },
+  "generated_at": "2026-06-13T22:19:43.826266"
+}

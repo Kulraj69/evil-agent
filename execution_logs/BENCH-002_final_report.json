@@ -1,0 +1,182 @@
+{
+  "summary": {
+    "hypothesis": "ransomware",
+    "description": "Ransomware: mass file encryption with extension change and ransom note.",
+    "confidence": 0.9,
+    "total_iterations": 2,
+    "converged": true
+  },
+  "findings": [
+    {
+      "finding_id": "F-001",
+      "claim": "Mass file modification consistent with encryption",
+      "evidence_artifacts": [
+        "mft_timeline"
+      ],
+      "confidence": 0.93,
+      "mitre_attack": "T1486",
+      "timestamp": "2026-04-15T14:31:00Z",
+      "validated": true
+    }
+  ],
+  "timeline": [
+    {
+      "timestamp": "2026-04-15T14:31:00Z",
+      "event": "Mass file modification consistent with encryption",
+      "mitre_attack": "T1486"
+    }
+  ],
+  "iocs": {
+    "file_hashes": [],
+    "ip_addresses": [],
+    "registry_keys": [],
+    "file_paths": []
+  },
+  "mitre_attack_techniques": [
+    "T1486"
+  ],
+  "audit_trail": {
+    "iterations": [
+      {
+        "iteration_number": 1,
+        "timestamp": "2026-06-13T22:19:43.820807",
+        "hypothesis": {
+          "type": "credential_theft",
+          "description": "First-glance hypothesis: credential_theft.",
+          "confidence": 0.7,
+          "supporting_evidence": [
+            "prefetch"
+          ],
+          "gaps": [
+            "Needs corroboration"
+          ],
+          "created_at": "2026-06-13T22:19:43.819414",
+          "iteration": 1
+        },
+        "tools_executed": [
+          {
+            "tool": "analyze_memory_dump",
+            "args": {
+              "dump_path": "/evidence/case002/memory.raw",
+              "plugin": "mimikatz"
+            },
+            "execution_id": "exec-0003",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.819842"
+          },
+          {
+            "tool": "parse_event_logs",
+            "args": {
+              "log_path": "/evidence/case002/System.evtx",
+              "event_ids": [
+                4624,
+                4625,
+                4672,
+                4648
+              ]
+            },
+            "execution_id": "exec-0004",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.820030"
+          },
+          {
+            "tool": "search_registry_hive",
+            "args": {
+              "hive_path": "/evidence/case002/disk.dd:SOFTWARE",
+              "key_pattern": "Run"
+            },
+            "execution_id": "exec-0005",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.820544"
+          }
+        ],
+        "findings": [
+          {
+            "finding_id": "F-001",
+            "claim": "Mass file modification consistent with encryption",
+            "evidence_artifacts": [
+              "mft_timeline"
+            ],
+            "confidence": 0.0,
+            "mitre_attack": "T1486",
+            "timestamp": "2026-04-15T14:31:00Z",
+            "validated": false
+          }
+        ],
+        "validation_results": [
+          {
+            "is_supported": false,
+            "confidence": 0.0,
+            "reason": "Citation(s) not found in evidence: mft_timeline",
+            "missing_evidence": [
+              "mft_timeline"
+            ]
+          }
+        ],
+        "gaps_identified": [
+          "1 findings lack supporting evidence",
+          "CONTRADICTION: No brute-force authentication pattern for credential-theft hypothesis",
+          "CONTRADICTION: No LSASS credential-dumping indicators in memory"
+        ],
+        "reasoning": "Refinement needed: 2 contradiction(s), confidence at 0.00. Gaps: CONTRADICTION: No brute-force authentication pattern for credential-theft hypothesis; CONTRADICTION: No LSASS credential-dumping indicators in memory",
+        "action_taken": "refine"
+      },
+      {
+        "iteration_number": 2,
+        "timestamp": "2026-06-13T22:19:43.821978",
+        "hypothesis": {
+          "type": "ransomware",
+          "description": "Ransomware: mass file encryption with extension change and ransom note.",
+          "confidence": 0.9,
+          "supporting_evidence": [
+            "auth_events",
+            "memory_dump",
+            "mft_timeline"
+          ],
+          "gaps": [],
+          "created_at": "2026-06-13T22:19:43.821018",
+          "iteration": 2
+        },
+        "tools_executed": [
+          {
+            "tool": "extract_mft_timeline",
+            "args": {
+              "image_path": "/evidence/case002/disk.dd"
+            },
+            "execution_id": "exec-0006",
+            "success": true,
+            "timestamp": "2026-06-13T22:19:43.821923"
+          }
+        ],
+        "findings": [
+          {
+            "finding_id": "F-001",
+            "claim": "Mass file modification consistent with encryption",
+            "evidence_artifacts": [
+              "mft_timeline"
+            ],
+            "confidence": 0.93,
+            "mitre_attack": "T1486",
+            "timestamp": "2026-04-15T14:31:00Z",
+            "validated": true
+          }
+        ],
+        "validation_results": [
+          {
+            "is_supported": true,
+            "confidence": 1.0,
+            "reason": "Claim supported by evidence with good alignment",
+            "missing_evidence": []
+          }
+        ],
+        "gaps_identified": [],
+        "reasoning": "Convergence achieved: 1.00 confidence, hypothesis consistent with evidence, no contradictions.",
+        "action_taken": "converged"
+      }
+    ],
+    "total_tools_executed": 4,
+    "self_corrections": 1,
+    "hallucinations_caught": 1
+  },
+  "generated_at": "2026-06-13T22:19:43.822577"
+}
