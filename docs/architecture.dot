@@ -1,0 +1,124 @@
+
+digraph FindEvil {
+    rankdir=TB;
+    node [shape=box, style=rounded, fontname="Arial"];
+
+    // Evidence Sources
+    subgraph cluster_evidence {
+        label="Evidence Sources";
+        style=filled;
+        color=lightgrey;
+
+        disk [label="Disk Image\ndisk.dd"];
+        memory [label="Memory Dump\nmemory.raw"];
+        eventlogs [label="Event Logs\nSecurity.evtx"];
+        registry [label="Registry Hives\nSYSTEM, SOFTWARE"];
+    }
+
+    // MCP Server
+    subgraph cluster_mcp {
+        label="Custom SIFT MCP Server\n🔒 Architectural Guardrails";
+        style=filled;
+        color="#ffcccc";
+
+        prefetch [label="analyze_prefetch()\nExecution History"];
+        mft [label="extract_mft_timeline()\nFile System"];
+        evtparse [label="parse_event_logs()\nAuth Events"];
+        memory_analyze [label="analyze_memory_dump()\nProcess Injection"];
+        registry_search [label="search_registry_hive()\nPersistence"];
+        amcache [label="get_amcache()\nApp Execution"];
+
+        validation [label="Input Validation\nPath Sanitization" shape=diamond style=filled color="#ff9999"];
+        whitelist [label="Whitelist\nNo Shell Exec" shape=diamond style=filled color="#ff9999"];
+    }
+
+    // Agent
+    subgraph cluster_agent {
+        label="Self-Correcting Agent\n🔄 Iteration Loop";
+        style=filled;
+        color="#ccccff";
+
+        step1 [label="1. Generate/Refine\nHypothesis" style=filled color="#9999ff"];
+        step2 [label="2. Gather Evidence\nMCP Calls"];
+        step3 [label="3. Validate Findings\nCitation-Mismatch"];
+        step4 [label="4. Identify Gaps\nContradictions"];
+        step5 [label="5. Decide Action\nConverge/Refine" style=filled color="#9999ff"];
+    }
+
+    // Validation Layer
+    subgraph cluster_validation {
+        label="Evidence Validation\n🛡️ Anti-Hallucination";
+        style=filled;
+        color="#ccffcc";
+
+        cite_check [label="Citation Check" style=filled color="#99ff99"];
+        align_check [label="Claim Alignment" style=filled color="#99ff99"];
+        xref [label="Cross-Reference" style=filled color="#99ff99"];
+        pattern [label="Pattern Detection" style=filled color="#99ff99"];
+    }
+
+    // Observability
+    subgraph cluster_obs {
+        label="Observability & Audit\n📊 Criterion #5";
+        style=filled;
+        color="#ffffcc";
+
+        logger [label="Iteration Logger\nStructured JSON"];
+        trace [label="Execution Trace\nFinding→Tool→Evidence"];
+        audit [label="Audit Trail\nTimestamps, IDs"];
+        report [label="Final Report\nMITRE ATT&CK"];
+    }
+
+    // LLM
+    llm [label="AWS Bedrock\nClaude Sonnet 4.5" shape=ellipse style=filled color="#ffddaa"];
+
+    // Connections - Evidence to MCP
+    disk -> prefetch;
+    disk -> mft;
+    memory -> memory_analyze;
+    eventlogs -> evtparse;
+    registry -> registry_search;
+
+    // MCP to Validation
+    prefetch -> validation;
+    mft -> validation;
+    evtparse -> validation;
+    memory_analyze -> validation;
+    registry_search -> validation;
+    amcache -> validation;
+
+    validation -> whitelist;
+
+    // Whitelist to Agent
+    whitelist -> step2;
+
+    // Agent Loop
+    step1 -> step2;
+    step2 -> step3;
+    step3 -> step4;
+    step4 -> step5;
+    step5 -> step1 [label="refine" style=dashed];
+    step5 -> logger [label="converge"];
+
+    // Validation layer
+    step3 -> cite_check;
+    cite_check -> align_check;
+    align_check -> xref;
+    xref -> pattern;
+    pattern -> step4;
+
+    // LLM connections
+    llm -> step1;
+    llm -> step3;
+
+    // Observability
+    step1 -> logger;
+    step2 -> logger;
+    step3 -> logger;
+    step4 -> logger;
+    step5 -> logger;
+
+    logger -> trace;
+    trace -> audit;
+    audit -> report;
+}
