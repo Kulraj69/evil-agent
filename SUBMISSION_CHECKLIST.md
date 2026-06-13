@@ -51,7 +51,9 @@ All three should exit 0 and print the expected numbers above.
 - [ ] Write the Devpost description
 - [ ] (Stretch) Wire one MCP tool to a real parser on a CFReDS image
 - [x] Live LLM client (Azure OpenAI) wired via `--live` (`agent/llm_client.py`)
-- [x] `pytest` suite (23 tests) + GitHub Actions CI (`.github/workflows/ci.yml`)
+- [x] `pytest` suite (23 tests). CI workflow drafted at `.github/ci.yml.txt`
+      (move to `.github/workflows/ci.yml` and push from a token with `workflow`
+      scope to activate GitHub Actions).
 - [ ] Final read-through of `README.md` for broken links / stale claims
 
 ## Known limitations (state these honestly in the writeup)
