@@ -75,21 +75,26 @@ The forensic tools (`mcp_server/real_sift_tools.py`) wrap real SIFT binaries
    curl -fsSL https://raw.githubusercontent.com/teamdfir/protocol-sift/main/install.sh | bash
    ```
 
-3. **Get a sample image.** Either the hackathon's "Example Compromised System
-   Data" or a NIST CFReDS image (provenance + SHA1 hashes in `datasets/README.md`),
-   e.g. the Data Leakage Case:
-   <https://cfreds-archive.nist.gov/data_leakage_case/data-leakage-case.html>
-   Verify the download with the published SHA1, then place it under `/evidence/`.
+3. **Get a sample image.** Use the helper script to download, **SHA1-verify**,
+   extract, and read-only-mount the NIST CFReDS Data Leakage PC image in one step:
+
+   ```bash
+   bash scripts/fetch_cfreds.sh /evidence/cfreds
+   # prints the raw read-only path, e.g. /evidence/cfreds/ewf_mount/ewf1
+   ```
+
+   (Or download manually from
+   <https://cfreds-archive.nist.gov/data_leakage_case/data-leakage-case.html>;
+   provenance + hashes are in `datasets/README.md`.)
 
 4. **Confirm the read-only SIFT binaries are on PATH** (`vol`, `fls`,
    `evtx_dump.py`, `rip.pl`). They ship with the SIFT Workstation.
 
-5. **Run the agent:**
+5. **Run the agent** against the raw read-only path from step 3:
 
    ```bash
    python3 run_real_sift.py --live \
-       --disk   /evidence/cfreds/cfreds_2015_data_leakage_pc.E01 \
-       --logs   /evidence/Security.evtx \
+       --disk   /evidence/cfreds/ewf_mount/ewf1 \
        --case   CFREDS-LEAK
    ```
 

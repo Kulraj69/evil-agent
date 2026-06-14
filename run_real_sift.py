@@ -76,6 +76,17 @@ def main():
         case_data["event_logs"] = args.logs
 
     mcp = RealSIFTTools(evidence_path="/evidence")
+
+    # Hash every provided evidence file UP FRONT so the integrity ledger is
+    # populated regardless of which tools the agent ends up running. This makes
+    # the read-only / anti-spoliation guarantee provable even on disk-only cases
+    # like the CFReDS Data Leakage image (no memory dump).
+    for path in (args.disk, args.memory, args.logs, args.registry):
+        if path:
+            digest = mcp.register_evidence(path)
+            if digest:
+                print(f"[integrity] SHA-256 baseline for {path}: {digest[:32]}...")
+
     logger = IterationLogger(case_id=args.case, log_dir="execution_logs")
 
     llm = None
@@ -92,6 +103,17 @@ def main():
 
     print(f"\nRunning FIND EVIL! on case {args.case} (real SIFT tools, read-only)...\n")
     report = agent.analyze_case(case_data)
+
+    # Final integrity re-verification across every registered evidence file.
+    for path in list(mcp.integrity_ledger.keys()):
+        ok = mcp.verify_integrity(path)
+        print(f"[integrity] post-analysis check {path}: {'UNCHANGED' if ok else 'MODIFIED!'}")
+
+    # Refresh the report's integrity counts after the final verification
+    report["audit_trail"]["evidence_integrity"] = {
+        "files_hashed": len(mcp.integrity_ledger),
+        "spoliation_events": len(mcp.spoliation_events),
+    }
 
     audit = report["audit_trail"]
     print("\n" + "=" * 70)
